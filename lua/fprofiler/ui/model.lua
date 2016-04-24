@@ -10,6 +10,7 @@ local model =
 
         client = {
             status = "Stopped", -- Started or Stopped
+            shouldReset = true, -- Whether profiling should start anew
             focus = nil, -- Any function in focus
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
@@ -17,6 +18,7 @@ local model =
 
         server = {
             status = "Stopped", -- Started or Stopped
+            shouldReset = true, -- Whether profiling should start anew
             focus = nil, -- Any function in focus
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
@@ -67,6 +69,22 @@ function FProfiler.UI.updateCurrentRealm(path, value)
 end
 
 --[[-------------------------------------------------------------------------
+Retrieve a value of the model
+---------------------------------------------------------------------------]]
+function FProfiler.UI.getModelValue(path)
+    path = istable(path) and path or {path}
+
+    local mdlTbl = model
+    local key = path[#path]
+
+    for i = 1, #path - 1 do
+        mdlTbl = mdlTbl[path[i]]
+    end
+
+    return mdlTbl[key]
+end
+
+--[[-------------------------------------------------------------------------
 Registers a hook that gets triggered when a certain part of the model is updated
 e.g. FProfiler.UI.onModelUpdate("realm", print) prints when the realm is changed
 ---------------------------------------------------------------------------]]
@@ -106,16 +124,12 @@ function FProfiler.UI.onCurrentRealmUpdate(path, func)
     FProfiler.UI.onModelUpdate(path, func)
 end
 
-function FProfiler.UI.clearUpdaters()
-    table.Empty(updaters)
+FProfiler.UI.onModelUpdate("realm", function(new, old)
+    if not updaters[new] then return end
 
-    FProfiler.UI.onModelUpdate("realm", function(new, old)
-        if not updaters[new] then return end
-
-        for k, funcTbl in pairs(updaters[new]) do
-            for _, func in ipairs(funcTbl) do
-                func(model[new][k], model[new][k])
-            end
+    for k, funcTbl in pairs(updaters[new]) do
+        for _, func in ipairs(funcTbl) do
+            func(model[new][k], model[new][k])
         end
-    end)
-end
+    end
+end)

@@ -8,7 +8,7 @@ local function getData()
         local row = {}
         table.CopyFromTo(debug.getinfo(func, "nfS"), row)
         row.total_called = called
-        row.total_time = inclusiveTimes[func] or -1
+        row.total_time = inclusiveTimes[func] or 0
         row.average_time = row.total_time / row.total_called
 
         row.name, row.namewhat = nil, nil

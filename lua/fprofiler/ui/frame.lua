@@ -45,6 +45,7 @@ function MAGICBAR:Init()
     self.restartProfiling:Dock(LEFT)
 
     self.restartProfiling.DoClick = function()
+        FProfiler.UI.updateCurrentRealm("shouldReset", true)
         FProfiler.UI.updateCurrentRealm("status", "Started")
     end
 
@@ -73,6 +74,7 @@ function MAGICBAR:Init()
     self.continueProfiling:Dock(LEFT)
 
     self.continueProfiling.DoClick = function()
+        FProfiler.UI.updateCurrentRealm("shouldReset", false)
         FProfiler.UI.updateCurrentRealm("status", "Started")
     end
 
@@ -96,7 +98,34 @@ The Bottlenecks tab's contents
 local BOTTLENECKTAB = {}
 
 function BOTTLENECKTAB:Init()
+    self:AddColumn("Name")
+    self:AddColumn("Path")
+    self:AddColumn("Lines")
+    self:AddColumn("Amount of times called")
+    self:AddColumn("Total time in ms (inclusive)")
+    self:AddColumn("Average time in ms (inclusive)")
 
+    FProfiler.UI.onCurrentRealmUpdate("bottlenecks", function(new)
+        self:Clear()
+
+        for _, row in ipairs(new) do
+            local names = {}
+            local path = row.short_src
+            local lines = path ~= "[C]" and row.linedefined .. " - " .. row.lastlinedefined or "N/A"
+            local amountCalled = row.total_called
+            local totalTime = row.total_time * 100
+            local avgTime = row.average_time * 100
+
+            for _, fname in ipairs(row.names or {}) do
+                if fname.namewhat == "" and fname.name == "" then continue end
+                table.insert(names, fname.namewhat .. " " .. fname.name)
+            end
+
+            if #names == 0 then names[1] = "Unknown" end
+
+            self:AddLine(table.concat(names, "/"), path, lines, amountCalled, totalTime, avgTime)
+        end
+    end)
 end
 
 derma.DefineControl("FProfileBottleNecks", "", BOTTLENECKTAB, "DListView")
@@ -107,7 +136,25 @@ The Top 10 lag spikes tab's contents
 local TOPTENTAB = {}
 
 function TOPTENTAB:Init()
+    self:AddColumn("Name")
+    self:AddColumn("Path")
+    self:AddColumn("Lines")
+    self:AddColumn("Runtime in ms")
 
+    FProfiler.UI.onCurrentRealmUpdate("topLagSpikes", function(new)
+        self:Clear()
+
+        for _, row in ipairs(new) do
+            if not row.func then break end
+
+            local name = row.info.name and (row.info.namewhat .. " " .. row.info.name) or "Unknown"
+            local path = row.info.short_src
+            local lines = path ~= "[C]" and row.info.linedefined .. " - " .. row.info.lastlinedefined or "N/A"
+            local runtime = row.runtime * 100
+
+            self:AddLine(name, path, lines, runtime)
+        end
+    end)
 end
 
 derma.DefineControl("FProfileTopTen", "", TOPTENTAB, "DListView")
@@ -159,7 +206,6 @@ derma.DefineControl("FProfileFrame", "", FRAME, "DFrame")
 
 concommand.Add("FProfiler",
     function()
-        FProfiler.UI.clearUpdaters()
         frameInstance = frameInstance or vgui.Create("FProfileFrame")
         frameInstance:SetVisible(true)
     end,
