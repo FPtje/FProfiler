@@ -24,4 +24,4 @@ What do I mean by macro-optimisation/the big guys you ask? Think of reducing an 
 
 That's where the profiler comes in. Always mistrust what you **think** is a big performance hog is, **measure** it. Even the assumptions of people who have optimising code as their profession are often proven wrong by the profiler. Don't be smug and think you can do any better.
 
-When working on performance the profiler is to be your guide. The profiler is to tell you what to optimise. Do not bother with anything other than the most expensive functions for you wil be wasting your time.
+When working on performance, the profiler is to be your guide. The profiler is to tell you what to optimise. Do not bother with anything other than the most expensive functions for you wil be wasting your time.
