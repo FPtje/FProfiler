@@ -52,9 +52,7 @@ function TIMERPANEL:Init()
     function self.counter:Think()
         local recordTime, sessionStart = FProfiler.UI.getCurrentRealmValue("recordTime"), FProfiler.UI.getCurrentRealmValue("sessionStart")
 
-        if not recordTime or not sessionStart then return end
-
-        local totalTime = recordTime + (CurTime() - sessionStart)
+        local totalTime = recordTime + (sessionStart and (CurTime() - sessionStart) or 0)
 
         self:SetText(string.FormattedTime(totalTime, "%02i:%02i:%02i"))
     end

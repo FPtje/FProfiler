@@ -21,6 +21,8 @@ Stop profiling
 local function stopProfiling()
     FProfiler.stop()
 
+    local newTime = get({"client", "recordTime"}) + CurTime() - (get({"client", "sessionStart"}) or 0)
+
     -- Prevent the model from getting too many things
     local dict = {}
     local mostTime = FProfiler.mostTimeInclusive(100)
@@ -45,7 +47,6 @@ local function stopProfiling()
     update({"client", "bottlenecks"}, mostTime)
     update({"client", "topLagSpikes"}, FProfiler.getMostExpensiveSingleCalls())
 
-    local newTime = get({"client", "recordTime"}) + CurTime() - (get({"client", "sessionStart"}) or 0)
     update({"client", "recordTime"}, newTime)
     update({"client", "sessionStart"}, nil)
 end
@@ -53,6 +54,7 @@ end
 --[[-------------------------------------------------------------------------
 Start/stop recording when the recording status is changed
 ---------------------------------------------------------------------------]]
-onUpdate({"client", "status"}, function(new)
+onUpdate({"client", "status"}, function(new, old)
+    if new == old then return end
     (new == "Started" and restartProfiling or stopProfiling)()
 end)
