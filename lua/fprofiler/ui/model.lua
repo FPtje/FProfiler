@@ -12,6 +12,8 @@ local model =
             status = "Stopped", -- Started or Stopped
             shouldReset = true, -- Whether profiling should start anew
             focus = nil, -- Any function in focus
+            recordTime = 0, -- Total time spent on the last full profiling session
+            sessionStart = nil, -- When the last profiling session was started
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
         },
@@ -21,6 +23,8 @@ local model =
             shouldReset = true, -- Whether profiling should start anew
             focus = nil, -- Any function in focus
             bottlenecks = {}, -- The list of bottleneck functions
+            recordTime = 0, -- Total time spent on the last full profiling session
+            sessionStart = nil, -- When the last profiling session was started
             topLagSpikes = {}, -- Top of lagging functions
         },
     }
@@ -82,6 +86,17 @@ function FProfiler.UI.getModelValue(path)
     end
 
     return mdlTbl[key]
+end
+
+--[[-------------------------------------------------------------------------
+Retrieve a value of the model regardless of realm
+---------------------------------------------------------------------------]]
+function FProfiler.UI.getCurrentRealmValue(path)
+    path = istable(path) and path or {path}
+
+    table.insert(path, 1, model.realm)
+
+    return FProfiler.UI.getModelValue(path)
 end
 
 --[[-------------------------------------------------------------------------

@@ -29,6 +29,43 @@ end
 
 derma.DefineControl("FProfileRealmPanel", "", REALMPANEL, "Panel")
 
+local TIMERPANEL = {}
+
+function TIMERPANEL:Init()
+    self:DockPadding(0, 5, 0, 5)
+    self:DockMargin(5, 0, 5, 0)
+
+    self.timeLabel = vgui.Create("DLabel", self)
+    self.timeLabel:SetDark(true)
+    self.timeLabel:SetText("Total profiling time:")
+
+    self.timeLabel:SizeToContents()
+    self.timeLabel:Dock(TOP)
+
+
+    self.counter = vgui.Create("DLabel", self)
+    self.counter:SetDark(true)
+    self.counter:SetText("00:00")
+    self.counter:SizeToContents()
+    self.counter:Dock(RIGHT)
+
+    function self.counter:Think()
+        local recordTime, sessionStart = FProfiler.UI.getCurrentRealmValue("recordTime"), FProfiler.UI.getCurrentRealmValue("sessionStart")
+
+        if not recordTime or not sessionStart then return end
+
+        local totaltime = recordTime + (CurTime() - sessionStart)
+        self:SetText(os.date("%M:%S", totaltime))
+    end
+end
+
+function TIMERPANEL:PerformLayout()
+    self.timeLabel:SizeToContents()
+    self.counter:SizeToContents()
+end
+
+derma.DefineControl("FProfileTimerPanel", "", TIMERPANEL, "Panel")
+
 --[[-------------------------------------------------------------------------
 The top bar
 ---------------------------------------------------------------------------]]
@@ -83,10 +120,15 @@ function MAGICBAR:Init()
     end)
 
     self.realmpanel:Dock(LEFT)
+
+    -- Timer
+    self.timerpanel = vgui.Create("FProfileTimerPanel", self)
+    self.timerpanel:Dock(RIGHT)
 end
 
 function MAGICBAR:PerformLayout()
     self.realmpanel:SizeToChildren(true, false)
+    self.timerpanel:SizeToChildren(true, false)
 end
 
 
