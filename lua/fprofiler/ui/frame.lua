@@ -221,6 +221,15 @@ end
 derma.DefineControl("FProfileResultSheet", "", RESULTSHEET, "DPropertySheet")
 
 --[[-------------------------------------------------------------------------
+The function details panel
+---------------------------------------------------------------------------]]
+local FUNCDETAILS = {}
+
+function FUNCDETAILS:Init()
+end
+derma.DefineControl("FProfileFuncDetails", "", FUNCDETAILS, "DPanel")
+
+--[[-------------------------------------------------------------------------
 The actual frame
 ---------------------------------------------------------------------------]]
 local FRAME = {}
@@ -239,7 +248,13 @@ function FRAME:Init()
     self.magicbar:Dock(TOP)
 
     self.resultsheet = vgui.Create("FProfileResultSheet", self)
-    self.resultsheet:Dock(FILL)
+    self.resultsheet:SetWide(self:GetWide() * 0.8)
+    self.resultsheet:Dock(LEFT)
+
+    self.details = vgui.Create("FProfileFuncDetails", self)
+    self.details:SetWide(self:GetWide() * 0.2 - 12)
+    self.details:DockMargin(5, 31, 0, 0)
+    self.details:Dock(RIGHT)
 end
 
 
