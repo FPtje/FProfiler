@@ -226,6 +226,29 @@ The function details panel
 local FUNCDETAILS = {}
 
 function FUNCDETAILS:Init()
+    self.titleLabel = vgui.Create("DLabel", self)
+    self.titleLabel:SetDark(true)
+    self.titleLabel:SetFont("DermaLarge")
+    self.titleLabel:SetText("Function Details")
+    self.titleLabel:SizeToContents()
+    -- self.titleLabel:Dock(TOP)
+
+    self.focus = vgui.Create("DButton", self)
+    self.focus:SetText("Focus")
+    self.focus:SetTall(50)
+    self.focus:SetFont("DermaDefaultBold")
+    self.focus:Dock(BOTTOM)
+
+
+    self.toConsole = vgui.Create("DButton", self)
+    self.toConsole:SetText("Print Details to Console")
+    self.toConsole:SetTall(50)
+    self.toConsole:SetFont("DermaDefaultBold")
+    self.toConsole:Dock(BOTTOM)
+end
+
+function FUNCDETAILS:PerformLayout()
+    self.titleLabel:CenterHorizontal()
 end
 derma.DefineControl("FProfileFuncDetails", "", FUNCDETAILS, "DPanel")
 
