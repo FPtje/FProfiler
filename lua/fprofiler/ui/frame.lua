@@ -45,7 +45,7 @@ function TIMERPANEL:Init()
 
     self.counter = vgui.Create("DLabel", self)
     self.counter:SetDark(true)
-    self.counter:SetText("00:00")
+    self.counter:SetText("00:00:00")
     self.counter:SizeToContents()
     self.counter:Dock(RIGHT)
 
@@ -54,8 +54,9 @@ function TIMERPANEL:Init()
 
         if not recordTime or not sessionStart then return end
 
-        local totaltime = recordTime + (CurTime() - sessionStart)
-        self:SetText(os.date("%M:%S", totaltime))
+        local totalTime = recordTime + (CurTime() - sessionStart)
+
+        self:SetText(string.FormattedTime(totalTime, "%02i:%02i:%02i"))
     end
 end
 
