@@ -51,7 +51,7 @@ function FProfiler.resetInclusiveTimes()
 end
 
 --[[-------------------------------------------------------------------------
-Top 10 most expensive single function calls
+Top n most expensive single function calls
 Keeps track of the functions that took the longest time to run
 Note: functions can appear in this list at most once
 ---------------------------------------------------------------------------]]
@@ -61,11 +61,11 @@ local mostExpensiveSingleCalls = {}
 FProfiler.getMostExpensiveSingleCalls = function() return mostExpensiveSingleCalls end
 
 -- Dictionary to make sure the same function doesn't appear multiple times
--- in the top 10
+-- in the top n
 local mostExpensiveSingleDict = {}
 
 function FProfiler.resetMostExpensiveSingleCalls()
-    for i = 1, 10 do mostExpensiveSingleCalls[i] = {runtime = 0} end
+    for i = 1, 50 do mostExpensiveSingleCalls[i] = {runtime = 0} end
     mostExpensiveSingleDict = {}
 end
 
@@ -150,10 +150,10 @@ local function registerReturn(funcInfo)
     -- Maintain recursion depth
     recursiveCount[func] = recursiveCount[func] - 1
 
-    -- Update top 10 list
+    -- Update top n list
     -- This path will be taken most often: the function isn't special
     -- Also only counts the top recursion
-    if runtime <= mostExpensiveSingleCalls[10].runtime or recursiveCount[func] > 1 then return end
+    if runtime <= mostExpensiveSingleCalls[50].runtime or recursiveCount[func] > 1 then return end
 
     -- If the function already appears in the top 10, replace it or discard the result
     if mostExpensiveSingleDict[func] then
@@ -180,8 +180,8 @@ local function registerReturn(funcInfo)
         return
     end
 
-    -- Knowing that the function belongs in the top 10, find its position
-    local i = 10
+    -- Knowing that the function belongs in the top n, find its position
+    local i = 50
     while i >= 1 and runtime > mostExpensiveSingleCalls[i].runtime do
         -- Update the dictionary
         -- All functions faster than the current one move down the list
@@ -191,7 +191,7 @@ local function registerReturn(funcInfo)
         i = i - 1
     end
 
-    -- Insert the expensive call in the top 10
+    -- Insert the expensive call in the top n
     mostExpensiveSingleDict[func] = i + 1
     table.insert(mostExpensiveSingleCalls, i + 1,
         {
@@ -202,12 +202,12 @@ local function registerReturn(funcInfo)
         })
 
 
-    -- What was previously the 10th most expensive function
+    -- What was previously the 50th most expensive function
     -- is now kicked out of the top 10
-    if mostExpensiveSingleCalls[11].func then
-        mostExpensiveSingleDict[mostExpensiveSingleCalls[11].func] = nil
+    if mostExpensiveSingleCalls[51].func then
+        mostExpensiveSingleDict[mostExpensiveSingleCalls[51].func] = nil
     end
-    mostExpensiveSingleCalls[11] = nil
+    mostExpensiveSingleCalls[51] = nil
 end
 
 

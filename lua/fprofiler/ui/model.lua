@@ -16,6 +16,7 @@ local model =
             sessionStart = nil, -- When the last profiling session was started
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
+            currentSelected = nil, -- Currently selected function
         },
 
         server = {
@@ -26,6 +27,7 @@ local model =
             recordTime = 0, -- Total time spent on the last full profiling session
             sessionStart = nil, -- When the last profiling session was started
             topLagSpikes = {}, -- Top of lagging functions
+            currentSelected = nil, -- Currently selected function
         },
     }
 

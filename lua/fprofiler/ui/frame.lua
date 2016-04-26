@@ -139,6 +139,7 @@ The Bottlenecks tab's contents
 local BOTTLENECKTAB = {}
 
 function BOTTLENECKTAB:Init()
+    self:SetMultiSelect(false)
     self:AddColumn("Name")
     self:AddColumn("Path")
     self:AddColumn("Lines")
@@ -151,8 +152,8 @@ function BOTTLENECKTAB:Init()
 
         for _, row in ipairs(new) do
             local names = {}
-            local path = row.short_src
-            local lines = path ~= "[C]" and row.linedefined .. " - " .. row.lastlinedefined or "N/A"
+            local path = row.info.short_src
+            local lines = path ~= "[C]" and row.info.linedefined .. " - " .. row.info.lastlinedefined or "N/A"
             local amountCalled = row.total_called
             local totalTime = row.total_time * 100
             local avgTime = row.average_time * 100
@@ -164,19 +165,35 @@ function BOTTLENECKTAB:Init()
 
             if #names == 0 then names[1] = "Unknown" end
 
-            self:AddLine(table.concat(names, "/"), path, lines, amountCalled, totalTime, avgTime)
+            local line = self:AddLine(table.concat(names, "/"), path, lines, amountCalled, totalTime, avgTime)
+            line.data = row
+        end
+    end)
+
+    FProfiler.UI.onCurrentRealmUpdate("currentSelected", function(new, old)
+        if new == old then return end
+
+        for _, line in pairs(self.Lines) do
+            line:SetSelected(line.data.func == new.func)
         end
     end)
 end
 
+
+function BOTTLENECKTAB:OnRowSelected(id, line)
+    FProfiler.UI.updateCurrentRealm("currentSelected", line.data)
+end
+
+
 derma.DefineControl("FProfileBottleNecks", "", BOTTLENECKTAB, "DListView")
 
 --[[-------------------------------------------------------------------------
-The Top 10 lag spikes tab's contents
+The Top n lag spikes tab's contents
 ---------------------------------------------------------------------------]]
 local TOPTENTAB = {}
 
 function TOPTENTAB:Init()
+    self:SetMultiSelect(false)
     self:AddColumn("Name")
     self:AddColumn("Path")
     self:AddColumn("Lines")
@@ -193,15 +210,28 @@ function TOPTENTAB:Init()
             local lines = path ~= "[C]" and row.info.linedefined .. " - " .. row.info.lastlinedefined or "N/A"
             local runtime = row.runtime * 100
 
-            self:AddLine(name, path, lines, runtime)
+            local line = self:AddLine(name, path, lines, runtime)
+            line.data = row
         end
     end)
+
+    FProfiler.UI.onCurrentRealmUpdate("currentSelected", function(new, old)
+        if new == old then return end
+
+        for _, line in pairs(self.Lines) do
+            line:SetSelected(line.data.func == new.func)
+        end
+    end)
+end
+
+function TOPTENTAB:OnRowSelected(id, line)
+    FProfiler.UI.updateCurrentRealm("currentSelected", line.data)
 end
 
 derma.DefineControl("FProfileTopTen", "", TOPTENTAB, "DListView")
 
 --[[-------------------------------------------------------------------------
-The Tab panel of the bottlenecks and top 10 lag spikes
+The Tab panel of the bottlenecks and top n lag spikes
 ---------------------------------------------------------------------------]]
 local RESULTSHEET = {}
 
@@ -213,7 +243,7 @@ function RESULTSHEET:Init()
     self:AddSheet("Bottlenecks", self.bottlenecksTab)
 
     self.toptenTab = vgui.Create("FProfileTopTen")
-    self:AddSheet("Top 10 most expensive function calls", self.toptenTab)
+    self:AddSheet("Top 50 most expensive function calls", self.toptenTab)
 
 end
 
@@ -245,6 +275,10 @@ function FUNCDETAILS:Init()
     self.toConsole:SetTall(50)
     self.toConsole:SetFont("DermaDefaultBold")
     self.toConsole:Dock(BOTTOM)
+
+    function self.toConsole:DoClick()
+        show(FProfiler.UI.getCurrentRealmValue("currentSelected"))
+    end
 end
 
 function FUNCDETAILS:PerformLayout()

@@ -6,7 +6,8 @@ local function getData()
     local data = {}
     for func, called in pairs(callCounts) do
         local row = {}
-        table.CopyFromTo(debug.getinfo(func, "nfS"), row)
+        row.func = func
+        row.info = debug.getinfo(func, "nfS")
         row.total_called = called
         row.total_time = inclusiveTimes[func] or 0
         row.average_time = row.total_time / row.total_called

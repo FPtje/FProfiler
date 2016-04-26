@@ -44,6 +44,8 @@ local function stopProfiling()
         table.insert(mostTime, mostCalled[i])
     end
 
+    table.SortByMember(mostTime, "total_time")
+
     update({"client", "bottlenecks"}, mostTime)
     update({"client", "topLagSpikes"}, FProfiler.getMostExpensiveSingleCalls())
 
