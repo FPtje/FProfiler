@@ -29,6 +29,63 @@ end
 
 derma.DefineControl("FProfileRealmPanel", "", REALMPANEL, "Panel")
 
+
+local FUNCINDICATOR = {}
+
+function FUNCINDICATOR:Init()
+    self:SetTall(5)
+    self.color = Color(0, 0, 0, 0)
+end
+
+function FUNCINDICATOR:Paint()
+    draw.RoundedBox(0, 0, 0, self:GetWide(), self:GetTall(), self.color)
+end
+
+derma.DefineControl("FProfileFuncIndicator", "", FUNCINDICATOR, "DPanel")
+
+
+local FOCUSPANEL = {}
+
+function FOCUSPANEL:Init()
+    self:DockPadding(0, 5, 0, 0)
+    self:DockMargin(5, 0, 5, 0)
+
+    self.focusLabel = vgui.Create("DLabel", self)
+    self.focusLabel:SetDark(true)
+    self.focusLabel:SetText("Profiling Focus:")
+
+    self.focusLabel:SizeToContents()
+    self.focusLabel:Dock(TOP)
+
+    self.funcIndicator = vgui.Create("FProfileFuncIndicator", self)
+    self.funcIndicator:Dock(BOTTOM)
+
+    self.focusBox = vgui.Create("DTextEntry", self)
+    self.focusBox:SetText("")
+    self.focusBox:Dock(BOTTOM)
+
+    function self.focusBox:OnChange()
+        FProfiler.UI.updateCurrentRealm("focusStr", self:GetText())
+    end
+
+    FProfiler.UI.onCurrentRealmUpdate("focusObj", function(new)
+        self.funcIndicator.color = FProfiler.UI.getCurrentRealmValue("focusStr") == "" and Color(0, 0, 0, 0) or new and Color(80, 255, 80, 255) or Color(255, 80, 80, 255)
+    end)
+
+    FProfiler.UI.onCurrentRealmUpdate("focusStr", function(new, old)
+        if self.focusBox:GetText() == new then return end
+
+        self.focusBox:SetText(tostring(new))
+    end)
+end
+
+function FOCUSPANEL:PerformLayout()
+    self.focusBox:SetWide(200)
+    self.focusLabel:SizeToContents()
+end
+
+derma.DefineControl("FProfileFocusPanel", "", FOCUSPANEL, "Panel")
+
 local TIMERPANEL = {}
 
 function TIMERPANEL:Init()
@@ -41,7 +98,6 @@ function TIMERPANEL:Init()
 
     self.timeLabel:SizeToContents()
     self.timeLabel:Dock(TOP)
-
 
     self.counter = vgui.Create("DLabel", self)
     self.counter:SetDark(true)
@@ -120,6 +176,9 @@ function MAGICBAR:Init()
 
     self.realmpanel:Dock(LEFT)
 
+    self.focuspanel = vgui.Create("FProfileFocusPanel", self)
+    self.focuspanel:Dock(LEFT)
+
     -- Timer
     self.timerpanel = vgui.Create("FProfileTimerPanel", self)
     self.timerpanel:Dock(RIGHT)
@@ -127,6 +186,7 @@ end
 
 function MAGICBAR:PerformLayout()
     self.realmpanel:SizeToChildren(true, false)
+    self.focuspanel:SizeToChildren(true, false)
     self.timerpanel:SizeToChildren(true, false)
 end
 
@@ -269,6 +329,12 @@ function FUNCDETAILS:Init()
     self.focus:SetFont("DermaDefaultBold")
     self.focus:Dock(BOTTOM)
 
+    function self.focus:DoClick()
+        local sel = FProfiler.UI.getCurrentRealmValue("currentSelected")
+        if not sel then return end
+
+        FProfiler.UI.updateCurrentRealm("focusStr", sel.func)
+    end
 
     self.toConsole = vgui.Create("DButton", self)
     self.toConsole:SetText("Print Details to Console")

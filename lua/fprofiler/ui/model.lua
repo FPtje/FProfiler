@@ -11,23 +11,27 @@ local model =
         client = {
             status = "Stopped", -- Started or Stopped
             shouldReset = true, -- Whether profiling should start anew
-            focus = nil, -- Any function in focus
             recordTime = 0, -- Total time spent on the last full profiling session
             sessionStart = nil, -- When the last profiling session was started
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
             currentSelected = nil, -- Currently selected function
+
+            focusObj = nil, -- The current function being focussed upon in profiling
+            focusStr = "", -- The current function name being entered
         },
 
         server = {
             status = "Stopped", -- Started or Stopped
             shouldReset = true, -- Whether profiling should start anew
-            focus = nil, -- Any function in focus
             bottlenecks = {}, -- The list of bottleneck functions
             recordTime = 0, -- Total time spent on the last full profiling session
             sessionStart = nil, -- When the last profiling session was started
             topLagSpikes = {}, -- Top of lagging functions
             currentSelected = nil, -- Currently selected function
+
+            focusObj = nil, -- The current function being focussed upon in profiling
+            focusStr = "", -- The current function name
         },
     }
 

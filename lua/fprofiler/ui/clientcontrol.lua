@@ -9,7 +9,7 @@ local function restartProfiling()
         update({"client", "recordTime"}, 0)
     end
 
-    local focus = get({"client", "focus"})
+    local focus = get({"client", "focusObj"})
 
     update({"client", "sessionStart"}, CurTime())
     FProfiler.start(focus)
@@ -59,4 +59,11 @@ Start/stop recording when the recording status is changed
 onUpdate({"client", "status"}, function(new, old)
     if new == old then return end
     (new == "Started" and restartProfiling or stopProfiling)()
+end)
+
+--[[-------------------------------------------------------------------------
+Update the current selected focus object when data is entered
+---------------------------------------------------------------------------]]
+onUpdate({"client", "focusStr"}, function(new)
+    update({"client", "focusObj"}, FProfiler.funcNameToObj(new))
 end)
