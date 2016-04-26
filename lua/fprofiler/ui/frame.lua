@@ -63,6 +63,7 @@ function FOCUSPANEL:Init()
     self.focusBox = vgui.Create("DTextEntry", self)
     self.focusBox:SetText("")
     self.focusBox:Dock(BOTTOM)
+    self.focusBox:SetTooltip("Focus the profiling on a single function.\nEnter a global function name here (like player.GetAll)\nYou're not allowed to call functions in here (e.g. hook.GetTable() is not allowed)")
 
     function self.focusBox:OnChange()
         FProfiler.UI.updateCurrentRealm("focusStr", self:GetText())
