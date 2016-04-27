@@ -469,7 +469,7 @@ local function InternalPrintTable( table, path, prefix, names, todo )
         gMsgF(sKey)
 
         -- Describe non primitives
-        local describe = istable(value) and ( !names[value] or todo[value] ) and value != NIL
+        describe = istable(value) and ( !names[value] or todo[value] ) and value != NIL
 
         -- Print key postfix
         local padding = keyLen - string.len(sKey)
@@ -552,4 +552,31 @@ function show(...)
         if istable(tbl[i]) then MsgN(tostring(tbl[i])) PrintTableGrep(tbl[i])
         else InternalPrintValue(tbl[i]) MsgN() end
     end
+end
+
+-- Hacky way of creating a pretty string from the above code
+-- because I don't feel like refactoring the entire thing
+local strResult
+local toStringMsgF = function(txt)
+    table.insert(strResult, txt)
+end
+
+local toStringMsgN = function()
+    table.insert(strResult, "\n")
+end
+
+local toStringMsgC = function(_, txt)
+    table.insert(strResult, txt)
+end
+
+function showStr(...)
+    local oldF, oldN, oldMsgC = gMsgF, gMsgN, MsgC
+    gMsgF, gMsgN, MsgC = toStringMsgF, toStringMsgN, toStringMsgC
+
+    strResult = {}
+    show(...)
+
+    gMsgF, gMsgN, MsgC = oldF, oldN, oldMsgC
+
+    return table.concat(strResult, "")
 end
