@@ -20,8 +20,8 @@ local color_name      = Color(260, 150,  30)
 local color_reference = Color(150, 230,  50)
 local color_comment   = Color( 30, 210,  30)
 
--- Global 'nil' value
-NIL = {}
+-- 'nil' value
+local NIL = {}
 
 -- Localise for faster access
 local pcall         = pcall
@@ -570,13 +570,13 @@ local toStringMsgC = function(_, txt)
 end
 
 function showStr(...)
-    local oldF, oldN, oldMsgC = gMsgF, gMsgN, MsgC
-    gMsgF, gMsgN, MsgC = toStringMsgF, toStringMsgN, toStringMsgC
+    local oldF, oldN, oldMsgC, oldMsgN = gMsgF, gMsgN, MsgC, MsgN
+    gMsgF, gMsgN, MsgC, MsgN = toStringMsgF, toStringMsgN, toStringMsgC, toStringMsgN
 
     strResult = {}
     show(...)
 
-    gMsgF, gMsgN, MsgC = oldF, oldN, oldMsgC
+    gMsgF, gMsgN, MsgC, MsgN = oldF, oldN, oldMsgC, oldMsgN
 
     return table.concat(strResult, "")
 end
