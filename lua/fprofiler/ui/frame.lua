@@ -337,6 +337,16 @@ function FUNCDETAILS:Init()
         FProfiler.UI.updateCurrentRealm("focusStr", sel.func)
     end
 
+    self.source = vgui.Create("DTextEntry", self)
+    self.source:SetKeyboardInputEnabled(false)
+    self.source:DockMargin(0, 40, 0, 0)
+    self.source:SetMultiline(true)
+    self.source:Dock(FILL)
+
+    FProfiler.UI.onCurrentRealmUpdate("sourceText", function(new)
+        self.source:SetText(string.Replace(new, "\t", "    "))
+    end)
+
     self.toConsole = vgui.Create("DButton", self)
     self.toConsole:SetText("Print Details to Console")
     self.toConsole:SetTall(50)
@@ -345,7 +355,7 @@ function FUNCDETAILS:Init()
 
     function self.toConsole:DoClick()
         local data = FProfiler.UI.getCurrentRealmValue("currentSelected")
-        show(data)
+
         file.CreateDir("fprofiler")
         file.Write("fprofiler/profiledata.txt", showStr(data))
         MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")

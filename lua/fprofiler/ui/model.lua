@@ -19,6 +19,8 @@ local model =
 
             focusObj = nil, -- The current function being focussed upon in profiling
             focusStr = "", -- The current function name being entered
+
+            sourceText = "" -- The text of the source function (if available)
         },
 
         server = {
@@ -32,6 +34,8 @@ local model =
 
             focusObj = nil, -- The current function being focussed upon in profiling
             focusStr = "", -- The current function name
+
+            sourceText = "" -- The text of the source function (if available)
         },
     }
 

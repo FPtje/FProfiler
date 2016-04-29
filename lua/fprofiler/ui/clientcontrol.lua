@@ -67,3 +67,9 @@ Update the current selected focus object when data is entered
 onUpdate({"client", "focusStr"}, function(new)
     update({"client", "focusObj"}, FProfiler.funcNameToObj(new))
 end)
+
+FProfiler.UI.onModelUpdate({"client", "currentSelected"}, function(new)
+    if not new or not new.info or not new.info.linedefined or not new.info.lastlinedefined or not new.info.short_src then return end
+
+    FProfiler.UI.updateModel({"client", "sourceText"}, FProfiler.readSource(new.info.short_src, new.info.linedefined, new.info.lastlinedefined))
+end)
