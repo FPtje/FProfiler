@@ -6,6 +6,7 @@ The server is involved in the ui in the sense that it interacts with its model
 util.AddNetworkString("FProfile_startProfiling")
 util.AddNetworkString("FProfile_stopProfiling")
 util.AddNetworkString("FProfile_focusObj")
+util.AddNetworkString("FProfile_getSource")
 
 
 --[[-------------------------------------------------------------------------
@@ -99,9 +100,21 @@ end
 
 -- Sends the top n functions
 local function writeTopN()
-    net.WriteUInt(#model.topLagSpikes, 8)
+    local count = #model.topLagSpikes
 
-    for i, row in ipairs(model.topLagSpikes) do
+    -- All top N f
+    for i = count, 0, -1 do
+        if model.topLagSpikes[i].info then break end -- Entry exists
+        count = i
+    end
+
+    net.WriteUInt(count, 8)
+
+    for i = 1, count do
+        local row = model.topLagSpikes[i]
+
+        if not row.info then break end
+
         writeRowData(row)
 
         net.WriteString(row.info.name or "")
@@ -109,6 +122,8 @@ local function writeTopN()
         net.WriteDouble(row.runtime)
     end
 end
+
+
 --[[-------------------------------------------------------------------------
 Receive a stop profiling signal
 ---------------------------------------------------------------------------]]
@@ -126,5 +141,23 @@ receive("FProfile_stopProfiling", function(_, ply)
 
         writeBottleNecks()
         writeTopN()
+    net.Send(ply)
+end)
+
+
+--[[-------------------------------------------------------------------------
+Send the source of a function to a client
+---------------------------------------------------------------------------]]
+receive("FProfile_getSource", function(_, ply)
+    local func = FProfiler.funcNameToObj(net.ReadString())
+
+    if not func then return end
+
+    local info = debug.getinfo(func)
+
+    if not info then return end
+
+    net.Start("FProfile_getSource")
+        net.WriteString(FProfiler.readSource(info.short_src, info.linedefined, info.lastlinedefined) or "")
     net.Send(ply)
 end)

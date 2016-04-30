@@ -102,3 +102,18 @@ onUpdate({"server", "status"}, function(new, old)
     if new == old then return end
     (new == "Started" and restartProfiling or stopProfiling)()
 end)
+
+--[[-------------------------------------------------------------------------
+Update info when a different line is selected
+---------------------------------------------------------------------------]]
+FProfiler.UI.onModelUpdate({"server", "currentSelected"}, function(new)
+    if not new or not new.info or not new.info.linedefined or not new.info.lastlinedefined or not new.info.short_src then return end
+
+    net.Start("FProfile_getSource")
+        net.WriteString(tostring(new.func))
+    net.SendToServer()
+end)
+
+net.Receive("FProfile_getSource", function()
+    FProfiler.UI.updateModel({"server", "sourceText"}, net.ReadString())
+end)
