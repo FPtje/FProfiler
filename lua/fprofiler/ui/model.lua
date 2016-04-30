@@ -20,6 +20,8 @@ local model =
             focusObj = nil, -- The current function being focussed upon in profiling
             focusStr = "", -- The current function name being entered
 
+            toConsole = nil, -- Any functions that should be printed to console
+
             sourceText = "" -- The text of the source function (if available)
         },
 
@@ -34,6 +36,8 @@ local model =
 
             focusObj = nil, -- The current function being focussed upon in profiling
             focusStr = "", -- The current function name
+
+            toConsole = nil, -- Any functions that should be printed to console
 
             sourceText = "" -- The text of the source function (if available)
         },

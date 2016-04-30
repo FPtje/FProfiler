@@ -51,8 +51,23 @@ end)
 --[[-------------------------------------------------------------------------
 Update info when a different line is selected
 ---------------------------------------------------------------------------]]
-FProfiler.UI.onModelUpdate({"client", "currentSelected"}, function(new)
+onUpdate({"client", "currentSelected"}, function(new)
     if not new or not new.info or not new.info.linedefined or not new.info.lastlinedefined or not new.info.short_src then return end
 
-    FProfiler.UI.updateModel({"client", "sourceText"}, FProfiler.readSource(new.info.short_src, new.info.linedefined, new.info.lastlinedefined))
+    update({"client", "sourceText"}, FProfiler.readSource(new.info.short_src, new.info.linedefined, new.info.lastlinedefined))
+end)
+
+--[[-------------------------------------------------------------------------
+When a function is to be printed to console
+---------------------------------------------------------------------------]]
+onUpdate({"client", "toConsole"}, function(data)
+    if not data then return end
+
+    update({"client", "toConsole"}, nil)
+    show(data)
+
+    file.CreateDir("fprofiler")
+    file.Write("fprofiler/profiledata.txt", showStr(data))
+    MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")
+    MsgC(Color(200, 200, 200), "If the above function does not fit in console, you can find it in data/fprofiler/profiledata.txt\n\n")
 end)

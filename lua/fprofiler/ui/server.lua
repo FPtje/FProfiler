@@ -7,6 +7,7 @@ util.AddNetworkString("FProfile_startProfiling")
 util.AddNetworkString("FProfile_stopProfiling")
 util.AddNetworkString("FProfile_focusObj")
 util.AddNetworkString("FProfile_getSource")
+util.AddNetworkString("FProfile_printFunction")
 
 
 --[[-------------------------------------------------------------------------
@@ -159,5 +160,42 @@ receive("FProfile_getSource", function(_, ply)
 
     net.Start("FProfile_getSource")
         net.WriteString(FProfiler.readSource(info.short_src, info.linedefined, info.lastlinedefined) or "")
+    net.Send(ply)
+end)
+
+--[[-------------------------------------------------------------------------
+Print the details of a function
+---------------------------------------------------------------------------]]
+receive("FProfile_printFunction", function(_, ply)
+    local source = net.ReadBool() -- true is from bottlenecks, false is from Top-N
+    local dataSource = source and model.bottlenecks or model.topLagSpikes
+    local func = net.ReadString()
+
+    local data
+
+    for _, row in ipairs(dataSource or {}) do
+        if tostring(row.func) == func then data = row break end
+    end
+
+    if not data then return end
+
+    -- Show the data
+    show(data)
+    local plaintext = showStr(data)
+
+    -- Write to file if necessary
+    file.CreateDir("fprofiler")
+    file.Write("fprofiler/profiledata.txt", plaintext)
+    MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")
+    MsgC(Color(200, 200, 200), "If the above function does not fit in console, you can find it in data/fprofiler/profiledata.txt\n\n")
+
+    -- Listen server hosts already see the server console
+    if ply:IsListenServerHost() then return end
+
+    -- Send a plaintext version to the client
+    local binary = util.Compress(plaintext)
+
+    net.Start("FProfile_printFunction")
+        net.WriteData(binary, #binary)
     net.Send(ply)
 end)

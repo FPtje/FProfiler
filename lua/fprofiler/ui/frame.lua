@@ -354,14 +354,7 @@ function FUNCDETAILS:Init()
     self.toConsole:Dock(BOTTOM)
 
     function self.toConsole:DoClick()
-        local data = FProfiler.UI.getCurrentRealmValue("currentSelected")
-
-        show(data)
-
-        file.CreateDir("fprofiler")
-        file.Write("fprofiler/profiledata.txt", showStr(data))
-        MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")
-        MsgC(Color(200, 200, 200), "If the above function does not fit in console, you can find it in data/fprofiler/profiledata.txt\n\n")
+        FProfiler.UI.updateCurrentRealm("toConsole", FProfiler.UI.getCurrentRealmValue("currentSelected"))
     end
 end
 
