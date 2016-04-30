@@ -266,7 +266,7 @@ function TOPTENTAB:Init()
         for _, row in ipairs(new) do
             if not row.func then break end
 
-            local name = row.info.name and (row.info.namewhat .. " " .. row.info.name) or "Unknown"
+            local name = row.info.name and row.info.name ~= "" and (row.info.namewhat .. " " .. row.info.name) or "Unknown"
             local path = row.info.short_src
             local lines = path ~= "[C]" and row.info.linedefined .. " - " .. row.info.lastlinedefined or "N/A"
             local runtime = row.runtime * 100
