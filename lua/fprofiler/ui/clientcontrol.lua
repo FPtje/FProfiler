@@ -23,28 +23,8 @@ local function stopProfiling()
 
     local newTime = get({"client", "recordTime"}) + CurTime() - (get({"client", "sessionStart"}) or 0)
 
-    -- Prevent the model from getting too many things
-    local dict = {}
-    local mostTime = FProfiler.mostTimeInclusive(100)
-    for i = 1, #mostTime do dict[mostTime[i].func] = true end
-
-    local mostAvg = FProfiler.mostTimeInclusiveAverage(100)
-
-    for i = 1, #mostAvg do
-        if dict[mostAvg[i].func] then continue end
-        dict[mostAvg[i].func] = true
-        table.insert(mostTime, mostAvg[i])
-    end
-
-    local mostCalled = FProfiler.mostOftenCalled(100)
-
-    for i = 1, #mostCalled do
-        if dict[mostCalled[i].func] then continue end
-        dict[mostCalled[i].func] = true
-        table.insert(mostTime, mostCalled[i])
-    end
-
-    table.SortByMember(mostTime, "total_time")
+    -- Get the aggregated data
+    local mostTime = FProfiler.getAggregatedResults(100)
 
     update({"client", "bottlenecks"}, mostTime)
     update({"client", "topLagSpikes"}, FProfiler.getMostExpensiveSingleCalls())
@@ -68,6 +48,9 @@ onUpdate({"client", "focusStr"}, function(new)
     update({"client", "focusObj"}, FProfiler.funcNameToObj(new))
 end)
 
+--[[-------------------------------------------------------------------------
+Update info when a different line is selected
+---------------------------------------------------------------------------]]
 FProfiler.UI.onModelUpdate({"client", "currentSelected"}, function(new)
     if not new or not new.info or not new.info.linedefined or not new.info.lastlinedefined or not new.info.short_src then return end
 

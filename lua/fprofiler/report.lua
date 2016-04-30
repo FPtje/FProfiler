@@ -69,3 +69,36 @@ function FProfiler.mostTimeInclusiveAverage(count)
 
     return cull(sorted, count)
 end
+
+--[[-------------------------------------------------------------------------
+Get the top <count> of most often called, time inclusive and average
+NOTE: This will almost definitely return more than <count> results.
+Up to three times <count> is possible.
+---------------------------------------------------------------------------]]
+function FProfiler.getAggregatedResults(count)
+    count = count or 100
+
+    local dict = {}
+    local mostTime = FProfiler.mostTimeInclusive(count)
+    for i = 1, #mostTime do dict[mostTime[i].func] = true end
+
+    local mostAvg = FProfiler.mostTimeInclusiveAverage(count)
+
+    for i = 1, #mostAvg do
+        if dict[mostAvg[i].func] then continue end
+        dict[mostAvg[i].func] = true
+        table.insert(mostTime, mostAvg[i])
+    end
+
+    local mostCalled = FProfiler.mostOftenCalled(count)
+
+    for i = 1, #mostCalled do
+        if dict[mostCalled[i].func] then continue end
+        dict[mostCalled[i].func] = true
+        table.insert(mostTime, mostCalled[i])
+    end
+
+    table.SortByMember(mostTime, "total_time")
+
+    return mostTime
+end

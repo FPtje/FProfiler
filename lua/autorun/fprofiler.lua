@@ -17,11 +17,12 @@ include("fprofiler/util.lua")
 include("fprofiler/gather.lua")
 include("fprofiler/report.lua")
 
-include("fprofiler/ui/server.lua")
 
 if CLIENT then
     include("fprofiler/ui/model.lua")
     include("fprofiler/ui/frame.lua")
     include("fprofiler/ui/clientcontrol.lua")
     include("fprofiler/ui/servercontrol.lua")
+elseif SERVER then
+    include("fprofiler/ui/server.lua")
 end
