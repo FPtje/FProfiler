@@ -12,6 +12,40 @@ DBugR profiles at hooks, timers and net messages specifically. FProfiler looks p
 
 I would recommend DBugR to measure networking and/or specific hooks and/or timers. I would recommend FProfiler for the things mentioned above.
 
+## Using FProfiler
+The `FProfiler` console command opens the profiler. Everything can be done from there.
+
+Here's an explanation of the FProfiler menu:
+
+UI thing | Description
+------------ | -------------
+Realm | Whether you're profiling the client or the server. Note: You need to be a SuperAdmin (or have the `FProfiler` permission in your favourite admin mod) to be allowed to do any serverside profiling!
+(Re)start profiling | Starts a profiling session. If there is any previous profiling session, it starts anew, disregarding any old data.
+Stop profiling | Stop an ongoing profiling session.
+Continue profiling | Continue a profiling session that has previously been stopped. It will simply continue gathering data.
+Profiling Focus | Focus the profiling on a specific function. Note: you **cannot** put arbitrary Lua in there, just function names! E.g. `player.GetAll` will work, but `hook.GetTable().Think.Cavity` will _not_.
+Bottlenecks | Shows the functions that the game has spent its most time on. The top ones are the ones that hurt your FPS most.
+Top n most expensive | Perfect for finding the cause of lag spikes. Lists the functions that took a long time on specific times they were called. Differs from the Bottlenecks tab in that Bottlenecks is about *all* the times the functions were called, this tab is about the single times they ran at their slowest.
+Focus button | Sets the profiling focus to the selected function
+
+## Using FProfiler in code
+
+FProfiler has an API, a simple one too. All functions listed below are shared:
+```lua
+-- Starts profiling.
+-- When focus is given, the profiler will only profile the focussed upon function, and the functions it calls
+FProfiler.start([focus])
+
+-- Stops profiling
+FProfiler.stop()
+
+-- Continue profiling
+FProfiler.continueProfiling()
+```
+
+All the data of the profiling sessions can be seen in the `FProfiler` menu. Because of that, there need to be **no** data retrieving functions in the API.
+If you don't want to use the UI, you *probably* want the profiling in a custom format. There are some internal functions available for that. Check out `lua/fprofiler/gather.lua` and `lua/fprofiler/report`.
+
 
 ## About bottlenecks
 
