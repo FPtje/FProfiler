@@ -147,10 +147,18 @@ function FProfiler.UI.onCurrentRealmUpdate(path, func)
     path = istable(path) and path or {path}
 
     table.insert(path, 1, "client")
-    FProfiler.UI.onModelUpdate(path, func)
+    FProfiler.UI.onModelUpdate(path, function(...)
+        if FProfiler.UI.getModelValue("realm") == "server" then return end
+
+        func(...)
+    end)
 
     path[1] = "server"
-    FProfiler.UI.onModelUpdate(path, func)
+    FProfiler.UI.onModelUpdate(path, function(...)
+        if FProfiler.UI.getModelValue("realm") == "client" then return end
+
+        func(...)
+    end)
 end
 
 --[[-------------------------------------------------------------------------
