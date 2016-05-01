@@ -7,6 +7,7 @@ local model =
     {
         realm = "client", -- "client" or "server"
         serverAccess = false, -- Whether the player has access to profile the server
+        frameVisible = false, -- Whether the frame is visible
 
         client = {
             status = "Stopped", -- Started or Stopped

@@ -1,6 +1,18 @@
 local get, update, onUpdate = FProfiler.UI.getModelValue, FProfiler.UI.updateModel, FProfiler.UI.onModelUpdate
 
 --[[-------------------------------------------------------------------------
+Check access when the frame opens
+---------------------------------------------------------------------------]]
+onUpdate("frameVisible", function(isOpen)
+    if not isOpen then return end
+
+    -- Update access
+    CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
+        update("serverAccess", b)
+    end)
+end)
+
+--[[-------------------------------------------------------------------------
 Update the current selected focus object when data is entered
 ---------------------------------------------------------------------------]]
 onUpdate({"server", "focusStr"}, function(new)
@@ -106,7 +118,7 @@ end)
 --[[-------------------------------------------------------------------------
 Update info when a different line is selected
 ---------------------------------------------------------------------------]]
-FProfiler.UI.onModelUpdate({"server", "currentSelected"}, function(new)
+onUpdate({"server", "currentSelected"}, function(new)
     if not new or not new.info or not new.info.linedefined or not new.info.lastlinedefined or not new.info.short_src then return end
 
     net.Start("FProfile_getSource")
@@ -115,7 +127,7 @@ FProfiler.UI.onModelUpdate({"server", "currentSelected"}, function(new)
 end)
 
 net.Receive("FProfile_getSource", function()
-    FProfiler.UI.updateModel({"server", "sourceText"}, net.ReadString())
+    update({"server", "sourceText"}, net.ReadString())
 end)
 
 --[[-------------------------------------------------------------------------

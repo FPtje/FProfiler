@@ -400,6 +400,9 @@ function FRAME:Init()
     self.details:Dock(RIGHT)
 end
 
+function FRAME:OnClose()
+    FProfiler.UI.updateModel("frameVisible", false)
+end
 
 derma.DefineControl("FProfileFrame", "", FRAME, "DFrame")
 
@@ -408,10 +411,8 @@ concommand.Add("FProfiler",
         frameInstance = frameInstance or vgui.Create("FProfileFrame")
         frameInstance:SetVisible(true)
 
-        -- Update access
-        CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
-            FProfiler.UI.updateModel("serverAccess", b)
-        end)
+        FProfiler.UI.updateModel("frameVisible", true)
+
     end,
     nil, "Starts FProfiler")
 concommand.Add("RemoveFProfiler", function() frameInstance:Remove() frameInstance = nil end)
