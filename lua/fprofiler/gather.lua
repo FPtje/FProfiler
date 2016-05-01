@@ -266,6 +266,13 @@ Profiling control
 -- Start profiling
 -- focus: only measure data of everything that happens within a certain function
 function FProfiler.Internal.start(focus)
+    -- Empty start times, so unfinished functions aren't
+    -- registered as returns on a second profiling session
+    -- local time = SysTime()
+    -- for k,v in pairs(startTimes) do startTimes[k] = time end
+    table.Empty(startTimes)
+    table.Empty(recursiveCount)
+
     debug.sethook(function(event) onLuaEvent(event, focus) end, "cr")
 end
 
