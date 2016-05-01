@@ -23,7 +23,7 @@ local model =
 
             toConsole = nil, -- Any functions that should be printed to console
 
-            sourceText = "" -- The text of the source function (if available)
+            sourceText = "", -- The text of the source function (if available)
         },
 
         server = {
@@ -40,14 +40,14 @@ local model =
 
             toConsole = nil, -- Any functions that should be printed to console
 
-            sourceText = "" -- The text of the source function (if available)
+            sourceText = "", -- The text of the source function (if available)
+            fromServer = false, -- Whether a change of the model came from the server.
         },
     }
 
 
 local updaters = {}
 
-a, b = model, updaters
 
 --[[-------------------------------------------------------------------------
 Update the model.

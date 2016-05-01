@@ -1,22 +1,11 @@
 local get, update, onUpdate = FProfiler.UI.getModelValue, FProfiler.UI.updateModel, FProfiler.UI.onModelUpdate
 
---[[-------------------------------------------------------------------------
-Check access when the frame opens
----------------------------------------------------------------------------]]
-onUpdate("frameVisible", function(isOpen)
-    if not isOpen then return end
-
-    -- Update access
-    CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
-        update("serverAccess", b)
-    end)
-end)
 
 --[[-------------------------------------------------------------------------
 Update the current selected focus object when data is entered
 ---------------------------------------------------------------------------]]
 onUpdate({"server", "focusStr"}, function(new)
-    if not new then return end
+    if not new or get({"server", "fromServer"}) then return end
 
     net.Start("FProfile_focusObj")
         net.WriteString(new)
@@ -27,6 +16,16 @@ net.Receive("FProfile_focusObj", function()
     update({"server", "focusObj"}, net.ReadBool() and get({"server", "focusStr"}) or nil)
 end)
 
+-- A focus update occurs when someone else changes the focus
+net.Receive("FProfile_focusUpdate", function()
+    update({"server", "fromServer"}, true)
+
+    local focusStr = net.ReadString()
+    update({"server", "focusStr"}, focusStr)
+    update({"server", "focusObj"}, net.ReadBool() and focusStr or nil)
+
+    update({"server", "fromServer"}, false)
+end)
 
 --[[-------------------------------------------------------------------------
 (Re)start profiling
@@ -40,9 +39,13 @@ local function restartProfiling()
 end
 
 net.Receive("FProfile_startProfiling", function()
+    update({"server", "fromServer"}, true)
+    update({"server", "status"}, "Started")
     update({"server", "recordTime"}, net.ReadDouble())
     update({"server", "sessionStart"}, net.ReadDouble())
+    update({"server", "fromServer"}, false)
 end)
+
 
 --[[-------------------------------------------------------------------------
 Stop profiling
@@ -100,20 +103,25 @@ local function readTopNRow(row)
 end
 
 net.Receive("FProfile_stopProfiling", function()
+    update({"server", "fromServer"}, true)
+    update({"server", "status"}, "Stopped")
     update({"server", "sessionStart"}, nil)
     update({"server", "recordTime"}, net.ReadDouble())
 
     update({"server", "bottlenecks"}, readDataRow(16, readBottleneckRow))
     update({"server", "topLagSpikes"}, readDataRow(8, readTopNRow))
+    update({"server", "fromServer"}, false)
 end)
+
 
 --[[-------------------------------------------------------------------------
 Start/stop recording when the recording status is changed
 ---------------------------------------------------------------------------]]
 onUpdate({"server", "status"}, function(new, old)
-    if new == old then return end
+    if new == old or get({"server", "fromServer"}) then return end
     (new == "Started" and restartProfiling or stopProfiling)()
 end)
+
 
 --[[-------------------------------------------------------------------------
 Update info when a different line is selected
@@ -129,6 +137,7 @@ end)
 net.Receive("FProfile_getSource", function()
     update({"server", "sourceText"}, net.ReadString())
 end)
+
 
 --[[-------------------------------------------------------------------------
 When a function is to be printed to console
@@ -160,3 +169,54 @@ net.Receive("FProfile_printFunction", function(len)
     MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")
     MsgC(Color(200, 200, 200), "In the server's console you can find a colour coded version of the above output.\nIf the above function does not fit in console, you can find it in data/fprofiler/profiledata.txt\n\n")
 end)
+
+
+--[[-------------------------------------------------------------------------
+Check access when the frame opens
+Also request a full serverside model update
+---------------------------------------------------------------------------]]
+onUpdate("frameVisible", function(isOpen)
+    if not isOpen then
+        net.Start("FProfile_unsubscribe")
+        net.SendToServer()
+
+        return
+    end
+
+    -- Update access
+    CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
+        update("serverAccess", b)
+    end)
+
+    net.Start("FProfile_fullModelUpdate")
+    net.SendToServer()
+end)
+
+
+net.Receive("FProfile_fullModelUpdate", function()
+    update({"server", "fromServer"}, true)
+
+    local focusExists = net.ReadBool()
+    if focusExists then
+        local focus = net.ReadString()
+        update({"server", "focusObj"}, focus)
+        update({"server", "focusStr"}, focus)
+    end
+
+    local startingTimeExists = net.ReadBool()
+
+    if startingTimeExists then
+        update({"server", "status"}, "Started")
+        update({"server", "sessionStart"}, net.ReadDouble())
+    else
+        update({"server", "status"}, "Stopped")
+    end
+
+    update({"server", "recordTime"}, net.ReadDouble())
+
+    update({"server", "bottlenecks"}, readDataRow(16, readBottleneckRow))
+    update({"server", "topLagSpikes"}, readDataRow(8, readTopNRow))
+
+    update({"server", "fromServer"}, false)
+end)
+

@@ -8,6 +8,9 @@ util.AddNetworkString("FProfile_stopProfiling")
 util.AddNetworkString("FProfile_focusObj")
 util.AddNetworkString("FProfile_getSource")
 util.AddNetworkString("FProfile_printFunction")
+util.AddNetworkString("FProfile_fullModelUpdate")
+util.AddNetworkString("FProfile_focusUpdate")
+util.AddNetworkString("FProfile_unsubscribe")
 
 
 --[[-------------------------------------------------------------------------
@@ -36,6 +39,7 @@ local model =
     recordTime = 0, -- Total time spent on the last full profiling session
     bottlenecks = {}, -- The list of bottleneck functions
     topLagSpikes = {}, -- Top of lagging functions
+    subscribers = RecipientFilter(), -- The players that get updates of the profiler model
 }
 
 
@@ -50,6 +54,14 @@ receive("FProfile_focusObj", function(_, ply)
     net.Start("FProfile_focusObj")
         net.WriteBool(model.focusObj and true or false)
     net.Send(ply)
+
+    -- Send a focus update to all other players
+    net.Start("FProfile_focusUpdate")
+        net.WriteString(funcStr)
+        net.WriteBool(model.focusObj and true or false)
+    model.subscribers:RemovePlayer(ply)
+    net.Send(model.subscribers:GetPlayers())
+    model.subscribers:AddPlayer(ply)
 end)
 
 
@@ -69,7 +81,7 @@ receive("FProfile_startProfiling", function(_, ply)
     net.Start("FProfile_startProfiling")
         net.WriteDouble(model.recordTime)
         net.WriteDouble(model.sessionStart)
-    net.Send(ply)
+    net.Send(model.subscribers:GetPlayers())
 end)
 
 -- Write generic row data to a net message
@@ -107,7 +119,7 @@ local function writeTopN()
 
     -- All top N f
     for i = count, 0, -1 do
-        if model.topLagSpikes[i].info then break end -- Entry exists
+        if model.topLagSpikes and model.topLagSpikes[i] and model.topLagSpikes[i].info then break end -- Entry exists
         count = i
     end
 
@@ -144,7 +156,7 @@ receive("FProfile_stopProfiling", function(_, ply)
 
         writeBottleNecks()
         writeTopN()
-    net.Send(ply)
+    net.Send(model.subscribers:GetPlayers())
 end)
 
 
@@ -164,6 +176,7 @@ receive("FProfile_getSource", function(_, ply)
         net.WriteString(FProfiler.readSource(info.short_src, info.linedefined, info.lastlinedefined) or "")
     net.Send(ply)
 end)
+
 
 --[[-------------------------------------------------------------------------
 Print the details of a function
@@ -200,4 +213,37 @@ receive("FProfile_printFunction", function(_, ply)
     net.Start("FProfile_printFunction")
         net.WriteData(binary, #binary)
     net.Send(ply)
+end)
+
+
+--[[-------------------------------------------------------------------------
+Request of a full model update
+Particularly useful when someone else has done (or is performing) a profiling session
+and the current player wants to see the results
+---------------------------------------------------------------------------]]
+receive("FProfile_fullModelUpdate", function(_, ply)
+    -- This player is now subscribed to the updates
+    model.subscribers:AddPlayer(ply)
+
+    net.Start("FProfile_fullModelUpdate")
+        net.WriteBool(model.focusObj ~= nil)
+        if model.focusObj ~= nil then net.WriteString(tostring(model.focusObj)) end
+
+        -- Bool also indicates whether it's currently profiling
+        net.WriteBool(model.sessionStart ~= nil)
+        if model.sessionStart ~= nil then net.WriteDouble(model.sessionStart) end
+
+        net.WriteDouble(model.recordTime)
+
+        writeBottleNecks()
+        writeTopN()
+
+    net.Send(ply)
+end)
+
+--[[-------------------------------------------------------------------------
+Unsubscribe from the updates of the profiler
+---------------------------------------------------------------------------]]
+receive("FProfile_unsubscribe", function(_, ply)
+    model.subscribers:RemovePlayer(ply)
 end)
