@@ -71,3 +71,28 @@ onUpdate({"client", "toConsole"}, function(data)
     MsgC(Color(200, 200, 200), "-----", Color(120, 120, 255), "NOTE", Color(200, 200, 200), "---------------\n")
     MsgC(Color(200, 200, 200), "If the above function does not fit in console, you can find it in data/fprofiler/profiledata.txt\n\n")
 end)
+
+--[[-------------------------------------------------------------------------
+API function: start profiling
+---------------------------------------------------------------------------]]
+function FProfiler.start(focus)
+    update({"client", "focusStr"}, tostring(focus))
+    update({"client", "focusObj"}, focus)
+    update({"client", "shouldReset"}, true)
+    update({"client", "status"}, "Started")
+end
+
+--[[-------------------------------------------------------------------------
+API function: stop profiling
+---------------------------------------------------------------------------]]
+function FProfiler.stop()
+    update({"client", "status"}, "Stopped")
+end
+
+--[[-------------------------------------------------------------------------
+API function: continue profiling
+---------------------------------------------------------------------------]]
+function FProfiler.continueProfiling()
+    update({"client", "shouldReset"}, false)
+    update({"client", "status"}, "Started")
+end
