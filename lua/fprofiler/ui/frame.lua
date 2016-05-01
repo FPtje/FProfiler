@@ -15,9 +15,18 @@ function REALMPANEL:Init()
     self.realmbox:AddChoice("Client")
     self.realmbox:AddChoice("Server")
     self.realmbox:Dock(TOP)
+
     FProfiler.UI.onModelUpdate("realm", function(new)
         self.realmbox.selected = new == "client" and 1 or 2
         self.realmbox:SetText(new == "client" and "Client" or "Server")
+    end)
+
+    FProfiler.UI.onModelUpdate("serverAccess", function(hasAccess)
+        self.realmbox:SetDisabled(not hasAccess)
+
+        if not hasAccess and self.realmbox.selected == 2 then
+            FProfiler.UI.updateModel("realm", "client")
+        end
     end)
 
     self.realmbox.OnSelect = function(_, _, value) FProfiler.UI.updateModel("realm", string.lower(value)) end
@@ -398,6 +407,11 @@ concommand.Add("FProfiler",
     function()
         frameInstance = frameInstance or vgui.Create("FProfileFrame")
         frameInstance:SetVisible(true)
+
+        -- Update access
+        CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
+            FProfiler.UI.updateModel("serverAccess", b)
+        end)
     end,
     nil, "Starts FProfiler")
 concommand.Add("RemoveFProfiler", function() frameInstance:Remove() frameInstance = nil end)

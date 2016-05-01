@@ -15,10 +15,12 @@ Helper function: receive a net message
 ---------------------------------------------------------------------------]]
 local function receive(msg, f)
     net.Receive(msg, function(len, ply)
-        -- Check access. TODO: CAMI integration?
-        if not ply:IsSuperAdmin() then return end
+        -- Check access.
+        CAMI.PlayerHasAccess(ply, "FProfiler", function(b, _)
+            if not b then return end
 
-        return f(len, ply)
+            f(len, ply)
+        end)
     end)
 end
 

@@ -2,6 +2,7 @@ FProfiler = {}
 FProfiler.UI = {}
 
 AddCSLuaFile()
+AddCSLuaFile("fprofiler/cami.lua")
 AddCSLuaFile("fprofiler/gather.lua")
 AddCSLuaFile("fprofiler/report.lua")
 AddCSLuaFile("fprofiler/util.lua")
@@ -11,6 +12,14 @@ AddCSLuaFile("fprofiler/ui/model.lua")
 AddCSLuaFile("fprofiler/ui/frame.lua")
 AddCSLuaFile("fprofiler/ui/clientcontrol.lua")
 AddCSLuaFile("fprofiler/ui/servercontrol.lua")
+
+include("fprofiler/cami.lua")
+
+CAMI.RegisterPrivilege{
+    Name = "FProfiler",
+    MinAccess = "superadmin"
+}
+
 
 include("fprofiler/prettyprint.lua")
 include("fprofiler/util.lua")

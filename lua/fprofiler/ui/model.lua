@@ -6,7 +6,7 @@ Loosely based on the Elm architecture
 local model =
     {
         realm = "client", -- "client" or "server"
-        focus = nil,
+        serverAccess = false, -- Whether the player has access to profile the server
 
         client = {
             status = "Stopped", -- Started or Stopped
@@ -135,7 +135,7 @@ function FProfiler.UI.onModelUpdate(path, func)
     table.insert(updTbl[key], func)
 
     -- Call update with the initial value
-    if mdlTbl[key] then
+    if mdlTbl[key] ~= nil then
         func(mdlTbl[key], mdlTbl[key])
     end
 end
@@ -153,6 +153,9 @@ function FProfiler.UI.onCurrentRealmUpdate(path, func)
     FProfiler.UI.onModelUpdate(path, func)
 end
 
+--[[-------------------------------------------------------------------------
+When the realm is changed, all update functions of the new realm are to be called
+---------------------------------------------------------------------------]]
 FProfiler.UI.onModelUpdate("realm", function(new, old)
     if not updaters[new] then return end
 
@@ -162,3 +165,4 @@ FProfiler.UI.onModelUpdate("realm", function(new, old)
         end
     end
 end)
+
