@@ -1,7 +1,7 @@
 local function getData()
-    local callCounts = FProfiler.getCallCounts()
-    local inclusiveTimes = FProfiler.getInclusiveTimes()
-    local funcNames = FProfiler.getFunctionNames()
+    local callCounts = FProfiler.Internal.getCallCounts()
+    local inclusiveTimes = FProfiler.Internal.getInclusiveTimes()
+    local funcNames = FProfiler.Internal.getFunctionNames()
 
     local data = {}
     for func, called in pairs(callCounts) do
@@ -40,7 +40,7 @@ The functions that are called most often
 Their implementations are O(n lg n),
 which is probably suboptimal but not worth my time optimising.
 ---------------------------------------------------------------------------]]
-function FProfiler.mostOftenCalled(count)
+function FProfiler.Internal.mostOftenCalled(count)
     local sorted = getData()
 
     table.SortByMember(sorted, "total_called")
@@ -51,7 +51,7 @@ end
 --[[-------------------------------------------------------------------------
 The functions that take the longest time in total
 ---------------------------------------------------------------------------]]
-function FProfiler.mostTimeInclusive(count)
+function FProfiler.Internal.mostTimeInclusive(count)
     local sorted = getData()
 
     table.SortByMember(sorted, "total_time")
@@ -62,7 +62,7 @@ end
 --[[-------------------------------------------------------------------------
 The functions that take the longest average time
 ---------------------------------------------------------------------------]]
-function FProfiler.mostTimeInclusiveAverage(count)
+function FProfiler.Internal.mostTimeInclusiveAverage(count)
     local sorted = getData()
 
     table.SortByMember(sorted, "average_time")
@@ -75,14 +75,14 @@ Get the top <count> of most often called, time inclusive and average
 NOTE: This will almost definitely return more than <count> results.
 Up to three times <count> is possible.
 ---------------------------------------------------------------------------]]
-function FProfiler.getAggregatedResults(count)
+function FProfiler.Internal.getAggregatedResults(count)
     count = count or 100
 
     local dict = {}
-    local mostTime = FProfiler.mostTimeInclusive(count)
+    local mostTime = FProfiler.Internal.mostTimeInclusive(count)
     for i = 1, #mostTime do dict[mostTime[i].func] = true end
 
-    local mostAvg = FProfiler.mostTimeInclusiveAverage(count)
+    local mostAvg = FProfiler.Internal.mostTimeInclusiveAverage(count)
 
     for i = 1, #mostAvg do
         if dict[mostAvg[i].func] then continue end
@@ -90,7 +90,7 @@ function FProfiler.getAggregatedResults(count)
         table.insert(mostTime, mostAvg[i])
     end
 
-    local mostCalled = FProfiler.mostOftenCalled(count)
+    local mostCalled = FProfiler.Internal.mostOftenCalled(count)
 
     for i = 1, #mostCalled do
         if dict[mostCalled[i].func] then continue end

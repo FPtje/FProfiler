@@ -3,7 +3,7 @@
 function FProfiler.funcNameToObj(str)
     if isfunction(str) then return str end
 
-    local times = FProfiler.getCallCounts()
+    local times = FProfiler.Internal.getCallCounts()
     for func, _ in pairs(times) do
         if tostring(func) == str then return func end
     end

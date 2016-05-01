@@ -5,29 +5,29 @@ local get, update, onUpdate = FProfiler.UI.getModelValue, FProfiler.UI.updateMod
 ---------------------------------------------------------------------------]]
 local function restartProfiling()
     if get({"client", "shouldReset"}) then
-        FProfiler.reset()
+        FProfiler.Internal.reset()
         update({"client", "recordTime"}, 0)
     end
 
     local focus = get({"client", "focusObj"})
 
     update({"client", "sessionStart"}, CurTime())
-    FProfiler.start(focus)
+    FProfiler.Internal.start(focus)
 end
 
 --[[-------------------------------------------------------------------------
 Stop profiling
 ---------------------------------------------------------------------------]]
 local function stopProfiling()
-    FProfiler.stop()
+    FProfiler.Internal.stop()
 
     local newTime = get({"client", "recordTime"}) + CurTime() - (get({"client", "sessionStart"}) or 0)
 
     -- Get the aggregated data
-    local mostTime = FProfiler.getAggregatedResults(100)
+    local mostTime = FProfiler.Internal.getAggregatedResults(100)
 
     update({"client", "bottlenecks"}, mostTime)
-    update({"client", "topLagSpikes"}, FProfiler.getMostExpensiveSingleCalls())
+    update({"client", "topLagSpikes"}, FProfiler.Internal.getMostExpensiveSingleCalls())
 
     update({"client", "recordTime"}, newTime)
     update({"client", "sessionStart"}, nil)

@@ -1,4 +1,5 @@
 FProfiler = {}
+FProfiler.Internal = {}
 FProfiler.UI = {}
 
 AddCSLuaFile()

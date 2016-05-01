@@ -71,12 +71,12 @@ Receive a "start profiling" signal
 receive("FProfile_startProfiling", function(_, ply)
     local shouldReset = net.ReadBool()
     if shouldReset then
-        FProfiler.reset()
+        FProfiler.Internal.reset()
         model.recordTime = 0
     end
 
     model.sessionStart = CurTime()
-    FProfiler.start(model.focusObj)
+    FProfiler.Internal.start(model.focusObj)
 
     net.Start("FProfile_startProfiling")
         net.WriteDouble(model.recordTime)
@@ -143,13 +143,13 @@ end
 Receive a stop profiling signal
 ---------------------------------------------------------------------------]]
 receive("FProfile_stopProfiling", function(_, ply)
-    FProfiler.stop()
+    FProfiler.Internal.stop()
 
     model.recordTime = model.recordTime + CurTime() - (model.sessionStart or 0)
     model.sessionStart = nil
 
-    model.bottlenecks = FProfiler.getAggregatedResults(100)
-    model.topLagSpikes = FProfiler.getMostExpensiveSingleCalls()
+    model.bottlenecks = FProfiler.Internal.getAggregatedResults(100)
+    model.topLagSpikes = FProfiler.Internal.getMostExpensiveSingleCalls()
 
     net.Start("FProfile_stopProfiling")
         net.WriteDouble(model.recordTime)

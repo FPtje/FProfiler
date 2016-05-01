@@ -43,11 +43,11 @@ local callcounts = {}
 
 
 -- Gets the call counts
-FProfiler.getCallCounts = function() return callcounts end
+FProfiler.Internal.getCallCounts = function() return callcounts end
 
 
 -- Resets the call counts
-function FProfiler.resetCallCounts()
+function FProfiler.Internal.resetCallCounts()
     callcounts = {}
 end
 
@@ -65,10 +65,10 @@ Note: recursive calls are not counted double
 local inclusiveTimes = {}
 
 -- Gets the inclusive times
-FProfiler.getInclusiveTimes = function() return inclusiveTimes end
+FProfiler.Internal.getInclusiveTimes = function() return inclusiveTimes end
 
 -- Resets the inclusive times
-function FProfiler.resetInclusiveTimes()
+function FProfiler.Internal.resetInclusiveTimes()
     inclusiveTimes = {}
 end
 
@@ -80,19 +80,19 @@ Note: functions can appear in this list at most once
 local mostExpensiveSingleCalls = {}
 
 -- Gets most expensive single calls
-FProfiler.getMostExpensiveSingleCalls = function() return mostExpensiveSingleCalls end
+FProfiler.Internal.getMostExpensiveSingleCalls = function() return mostExpensiveSingleCalls end
 
 -- Dictionary to make sure the same function doesn't appear multiple times
 -- in the top n
 local mostExpensiveSingleDict = {}
 
-function FProfiler.resetMostExpensiveSingleCalls()
+function FProfiler.Internal.resetMostExpensiveSingleCalls()
     for i = 1, 50 do mostExpensiveSingleCalls[i] = {runtime = 0} end
     mostExpensiveSingleDict = {}
 end
 
 -- Initial empty list
-FProfiler.resetMostExpensiveSingleCalls()
+FProfiler.Internal.resetMostExpensiveSingleCalls()
 
 --[[-------------------------------------------------------------------------
 Function information
@@ -103,7 +103,7 @@ function name and scope
 ---------------------------------------------------------------------------]]
 local functionNames = {}
 
-FProfiler.getFunctionNames = function() return functionNames end
+FProfiler.Internal.getFunctionNames = function() return functionNames end
 
 --[[-------------------------------------------------------------------------
 Recursion depth
@@ -248,7 +248,7 @@ local function onLuaEvent(event, focus)
 
         registerFunctionCall(info)
     else
-        -- Functions that return right after the call to FProfiler.start()
+        -- Functions that return right after the call to FProfiler.Internal.start()
         -- are not to be counted
         if not recursiveCount[func] or recursiveCount[func] == 0 then return end
 
@@ -265,19 +265,19 @@ Profiling control
 
 -- Start profiling
 -- focus: only measure data of everything that happens within a certain function
-function FProfiler.start(focus)
+function FProfiler.Internal.start(focus)
     debug.sethook(function(event) onLuaEvent(event, focus) end, "cr")
 end
 
 
 -- Stop profiling
-function FProfiler.stop()
+function FProfiler.Internal.stop()
     debug.sethook()
 end
 
 -- Reset all profiling data
-function FProfiler.reset()
-    FProfiler.resetCallCounts()
-    FProfiler.resetInclusiveTimes()
-    FProfiler.resetMostExpensiveSingleCalls()
+function FProfiler.Internal.reset()
+    FProfiler.Internal.resetCallCounts()
+    FProfiler.Internal.resetInclusiveTimes()
+    FProfiler.Internal.resetMostExpensiveSingleCalls()
 end
