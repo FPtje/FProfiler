@@ -1,3 +1,6 @@
+--[[-------------------------------------------------------------------------
+The panel that contains the realm switcher
+---------------------------------------------------------------------------]]
 local REALMPANEL = {}
 
 function REALMPANEL:Init()
@@ -38,7 +41,10 @@ end
 
 derma.DefineControl("FProfileRealmPanel", "", REALMPANEL, "Panel")
 
-
+--[[-------------------------------------------------------------------------
+The little red or green indicator that indicates whether the focussing
+function is correct
+---------------------------------------------------------------------------]]
 local FUNCINDICATOR = {}
 
 function FUNCINDICATOR:Init()
@@ -52,7 +58,9 @@ end
 
 derma.DefineControl("FProfileFuncIndicator", "", FUNCINDICATOR, "DPanel")
 
-
+--[[-------------------------------------------------------------------------
+The panel that contains the focus text entry and the focus indicator
+---------------------------------------------------------------------------]]
 local FOCUSPANEL = {}
 
 function FOCUSPANEL:Init()
@@ -71,6 +79,7 @@ function FOCUSPANEL:Init()
 
     self.focusBox = vgui.Create("DTextEntry", self)
     self.focusBox:SetText("")
+    self.focusBox:SetWidth(150)
     self.focusBox:Dock(BOTTOM)
     self.focusBox:SetTooltip("Focus the profiling on a single function.\nEnter a global function name here (like player.GetAll)\nYou're not allowed to call functions in here (e.g. hook.GetTable() is not allowed)")
 
@@ -96,6 +105,9 @@ end
 
 derma.DefineControl("FProfileFocusPanel", "", FOCUSPANEL, "Panel")
 
+--[[-------------------------------------------------------------------------
+The timer that keeps track of for how long the profiling has been going on
+---------------------------------------------------------------------------]]
 local TIMERPANEL = {}
 
 function TIMERPANEL:Init()
@@ -406,13 +418,14 @@ end
 
 derma.DefineControl("FProfileFrame", "", FRAME, "DFrame")
 
+--[[-------------------------------------------------------------------------
+The command to start the profiler
+---------------------------------------------------------------------------]]
 concommand.Add("FProfiler",
     function()
         frameInstance = frameInstance or vgui.Create("FProfileFrame")
         frameInstance:SetVisible(true)
 
         FProfiler.UI.updateModel("frameVisible", true)
-
     end,
     nil, "Starts FProfiler")
-concommand.Add("RemoveFProfiler", function() frameInstance:Remove() frameInstance = nil end)
