@@ -14,6 +14,7 @@ function FProfiler.funcNameToObj(str)
 
     for i = 1, #exploded - 1 do
         tbl = (tbl or {})[exploded[i]]
+        if not istable(tbl) then return end
     end
 
     local func = (tbl or {})[exploded[#exploded]]
