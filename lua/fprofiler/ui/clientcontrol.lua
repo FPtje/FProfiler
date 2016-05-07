@@ -12,6 +12,7 @@ local function restartProfiling()
     local focus = get({"client", "focusObj"})
 
     update({"client", "sessionStart"}, CurTime())
+    update({"client", "sessionStartSysTime"}, SysTime())
     FProfiler.Internal.start(focus)
 end
 
@@ -21,7 +22,7 @@ Stop profiling
 local function stopProfiling()
     FProfiler.Internal.stop()
 
-    local newTime = get({"client", "recordTime"}) + CurTime() - (get({"client", "sessionStart"}) or 0)
+    local newTime = get({"client", "recordTime"}) + SysTime() - (get({"client", "sessionStartSysTime"}) or 0)
 
     -- Get the aggregated data
     local mostTime = FProfiler.Internal.getAggregatedResults(100)
@@ -31,6 +32,7 @@ local function stopProfiling()
 
     update({"client", "recordTime"}, newTime)
     update({"client", "sessionStart"}, nil)
+    update({"client", "sessionStartSysTime"}, nil)
 end
 
 --[[-------------------------------------------------------------------------

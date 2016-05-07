@@ -14,6 +14,7 @@ local model =
             shouldReset = true, -- Whether profiling should start anew
             recordTime = 0, -- Total time spent on the last full profiling session
             sessionStart = nil, -- When the last profiling session was started
+            sessionStartSysTime = nil, -- When the last profiling session was started, measured in SysTime
             bottlenecks = {}, -- The list of bottleneck functions
             topLagSpikes = {}, -- Top of lagging functions
             currentSelected = nil, -- Currently selected function
