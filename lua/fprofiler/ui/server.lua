@@ -19,7 +19,8 @@ Contains only what the server needs to know
 local model =
 {
     focusObj = nil, -- the function currently in focus
-    sessionStart = nil, -- When the last profiling session was started
+    sessionStart = nil, -- When the last profiling session was started. Used for the live timer.
+    sessionStartSysTime = nil, -- Same as sessionStart, but measured in SysTime. Used to update recordTime
     recordTime = 0, -- Total time spent on the last full profiling session
     bottlenecks = {}, -- The list of bottleneck functions
     topLagSpikes = {}, -- Top of lagging functions
@@ -106,6 +107,7 @@ end
 -- Start profiling
 local function startProfiling()
     model.sessionStart = CurTime()
+    model.sessionStartSysTime = SysTime()
     FProfiler.Internal.start(model.focusObj)
 
     net.Start("FProfile_startProfiling")
@@ -118,8 +120,9 @@ end
 local function stopProfiling()
     FProfiler.Internal.stop()
 
-    model.recordTime = model.recordTime + CurTime() - (model.sessionStart or 0)
+    model.recordTime = model.recordTime + SysTime() - (model.sessionStartSysTime or 0)
     model.sessionStart = nil
+    model.sessionStartSysTime = nil
 
     model.bottlenecks = FProfiler.Internal.getAggregatedResults(100)
     model.topLagSpikes = FProfiler.Internal.getMostExpensiveSingleCalls()
