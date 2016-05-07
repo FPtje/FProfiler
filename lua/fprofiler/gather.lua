@@ -240,7 +240,7 @@ local function onLuaEvent(event, focus)
     local info = debug.getinfo(3)
     local func = info.func
 
-    if event == "call" then
+    if event == "call" or event == "tail call" then
         -- Only track the focussed function and the functions
         -- called by the focussed function
         if focus == func then focusDepth = focusDepth + 1 end
