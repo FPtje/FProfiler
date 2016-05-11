@@ -4,8 +4,8 @@ The panel that contains the realm switcher
 local REALMPANEL = {}
 
 function REALMPANEL:Init()
-    self:DockPadding(0, 5, 0, 5)
-    self:DockMargin(5, 0, 5, 0)
+    self:DockPadding(0, 0, 0, 0)
+    self:DockMargin(0, 0, 5, 0)
 
     self.realmLabel = vgui.Create("DLabel", self)
     self.realmLabel:SetDark(true)
@@ -37,6 +37,8 @@ end
 
 function REALMPANEL:PerformLayout()
     self.realmLabel:SizeToContents()
+    local top = ( self:GetTall() - self.realmLabel:GetTall() - self.realmbox:GetTall()) * 0.5
+    self:DockPadding(0, top, 0, 0)
 end
 
 derma.DefineControl("FProfileRealmPanel", "", REALMPANEL, "Panel")
@@ -64,8 +66,8 @@ The panel that contains the focus text entry and the focus indicator
 local FOCUSPANEL = {}
 
 function FOCUSPANEL:Init()
-    self:DockPadding(0, 5, 0, 0)
-    self:DockMargin(5, 0, 5, 0)
+    self:DockPadding(0, 0, 0, 0)
+    self:DockMargin(0, 0, 5, 0)
 
     self.focusLabel = vgui.Create("DLabel", self)
     self.focusLabel:SetDark(true)
@@ -169,7 +171,7 @@ function MAGICBAR:Init()
 
     -- Stop profiling
     self.stopProfiling = vgui.Create("DButton", self)
-    self.stopProfiling:SetText("      Stop\n    Profiling")
+    self.stopProfiling:SetText("     Stop\n  Profiling")
     self.stopProfiling:DockMargin(0, 0, 5, 0)
     self.stopProfiling:Dock(LEFT)
 
@@ -183,7 +185,7 @@ function MAGICBAR:Init()
 
     -- Continue profiling
     self.continueProfiling = vgui.Create("DButton", self)
-    self.continueProfiling:SetText("    Continue\n    Profiling")
+    self.continueProfiling:SetText("    Continue\n     Profiling")
     self.continueProfiling:DockMargin(0, 0, 5, 0)
     self.continueProfiling:Dock(LEFT)
 
@@ -399,7 +401,7 @@ function FRAME:Init()
     self:SetDeleteOnClose(false)
 
     self.magicbar = vgui.Create("FProfileMagicBar", self)
-    self.magicbar:SetTall(self:GetTall() * 0.07)
+    self.magicbar:SetTall(math.max(self:GetTall() * 0.07, 48))
     self.magicbar:Dock(TOP)
 
     self.resultsheet = vgui.Create("FProfileResultSheet", self)
