@@ -176,10 +176,9 @@ Check access when the frame opens
 Also request a full serverside model update
 ---------------------------------------------------------------------------]]
 onUpdate("frameVisible", function(isOpen)
-    if not isOpen then
-        net.Start("FProfile_unsubscribe")
-        net.SendToServer()
-
+    -- Don't network if the server doesn't have FProfiler installed
+    if util.NetworkStringToID("FProfile_fullModelUpdate") == 0 then
+        update("serverAccess", false)
         return
     end
 
@@ -187,6 +186,13 @@ onUpdate("frameVisible", function(isOpen)
     CAMI.PlayerHasAccess(LocalPlayer(), "FProfiler", function(b, _)
         update("serverAccess", b)
     end)
+
+    if not isOpen then
+        net.Start("FProfile_unsubscribe")
+        net.SendToServer()
+
+        return
+    end
 
     net.Start("FProfile_fullModelUpdate")
     net.SendToServer()
