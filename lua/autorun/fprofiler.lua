@@ -33,6 +33,6 @@ if CLIENT then
     include("fprofiler/ui/frame.lua")
     include("fprofiler/ui/clientcontrol.lua")
     include("fprofiler/ui/servercontrol.lua")
-elseif SERVER then
+else
     include("fprofiler/ui/server.lua")
 end
