@@ -35,7 +35,7 @@ function FProfiler.readSource(fname, startLine, endLine)
 
     local res = {}
     for i = startLine, endLine do
-        table.insert(res, f:ReadLine())
+        table.insert(res, f:ReadLine() or "")
     end
 
     return table.concat(res, "\n")
