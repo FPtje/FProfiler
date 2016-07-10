@@ -40,6 +40,8 @@ local gMsgF -- Print fragment
 local gMsgN -- Print newline
 local gMsgC -- Set print color
 
+local PrintLocals, gBegin, gFinish, PrintTableGrep, PrintLocals
+
 do
     local grep_color   = Color(235, 70, 70)
 
