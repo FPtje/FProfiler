@@ -140,7 +140,7 @@ do
                 end
 
                 -- Flush history
-                if grep_proximity != 0 then
+                if grep_proximity ~= 0 then
                     local len = #history
 
                     for index = len -1, 1, -1 do
@@ -188,7 +188,7 @@ do
         grep = isstring(new) and new
 
         if grep then
-            grep_raw       = !pcall(string_find, ' ', grep)
+            grep_raw       = not pcall(string_find, ' ', grep)
             grep_proximity = isnumber(prox) and prox
 
             -- Reset everything
@@ -227,8 +227,8 @@ do
             end
 
             -- Record color change
-            if color != currColor then
-                if !markers then
+            if color ~= currColor then
+                if not markers then
                     markers = {}
                     colors  = {}
                 end
@@ -341,7 +341,7 @@ local function InternalPrintValue( value )
         if info.what == 'C' then
             aux = "\t-- [C]: -1"
         else
-            if info.linedefined != info.lastlinedefined then
+            if info.linedefined ~= info.lastlinedefined then
                 aux = string.format("\t-- [%s]: %i-%i", info.short_src, info.linedefined, info.lastlinedefined)
             else
                 aux = string.format("\t-- [%s]: %i", info.short_src, info.linedefined)
@@ -360,7 +360,7 @@ local objID
 local function isprimitive( value )
     local id = TypeID(value)
 
-    return id <= TYPE_FUNCTION and id != TYPE_TABLE
+    return id <= TYPE_FUNCTION and id ~= TYPE_TABLE
 end
 
 local function InternalPrintTable( table, path, prefix, names, todo )
@@ -383,7 +383,7 @@ local function InternalPrintTable( table, path, prefix, names, todo )
             local name = names[key]
 
             -- Assign a new unique identifier
-            if !name then
+            if not name then
                 objID = objID +1
                 name  = string.format("%s: obj #%i", tostring(key), objID)
 
@@ -425,7 +425,7 @@ local function InternalPrintTable( table, path, prefix, names, todo )
             local wA = type_weight[ TypeID( table[A] ) ] or 0
             local wB = type_weight[ TypeID( table[B] ) ] or 0
 
-            if wA != wB then
+            if wA ~= wB then
                 return wA < wB
             end
 
@@ -450,13 +450,13 @@ local function InternalPrintTable( table, path, prefix, names, todo )
         local vName = names[value]
 
         -- Decide to either fully describe, or print the value
-        local describe = !isprimitive(value) and ( !vName or todo[value] )
+        local describe = not isprimitive(value) and ( not vName or todo[value] )
 
         -- Ident
         gMsgF(prefix)
 
         -- Fancy table guides
-        local moreLines = (index != keyCount) or describe
+        local moreLines = (index ~= keyCount) or describe
 
         if index == 1 then
             gMsgF(moreLines and '╦ ' or '═ ')
@@ -471,7 +471,7 @@ local function InternalPrintTable( table, path, prefix, names, todo )
         gMsgF(sKey)
 
         -- Describe non primitives
-        describe = istable(value) and ( !names[value] or todo[value] ) and value != NIL
+        describe = istable(value) and ( not names[value] or todo[value] ) and value ~= NIL
 
         -- Print key postfix
         local padding = keyLen - string.len(sKey)
@@ -500,7 +500,7 @@ local function InternalPrintTable( table, path, prefix, names, todo )
             InternalPrintTable(value, new_path, new_prefix, names, todo)
         else
             -- Print the value (or the reference name)
-            if vName and !todo[value] then
+            if vName and not todo[value] then
                 gMsgC(color_reference)
                 gMsgF(string.format("ref: %s",vName))
             else
@@ -532,7 +532,7 @@ function PrintLocals( level )
     for index = 1, 255 do
         local name, value = debug.getlocal(2, index)
 
-        if !name then
+        if not name then
             break
         end
 
