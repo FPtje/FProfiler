@@ -242,9 +242,19 @@ function BOTTLENECKTAB:Init()
             local totalTime = row.total_time * 100
             local avgTime = row.average_time * 100
 
-            for _, fname in ipairs(row.names or {}) do
-                if fname.namewhat == "" and fname.name == "" then continue end
-                table.insert(names, fname.namewhat .. " " .. fname.name)
+            local A=pcall(ipairs,row.names or {})
+            local B=pcall(SortedPairs,row.names or {})
+            local PAIRS=false
+            if A then
+                PAIRS=ipairs
+            elseif B then
+                PAIRS=SortedPairs
+            end
+            if PAIRS then
+                for k,fname in PAIRS(row.names or {}) do
+                    if fname.namewhat == "" and fname.name == "" then continue end
+                    table.insert(names, fname.namewhat .. " " .. fname.name)
+                end
             end
 
             if #names == 0 then names[1] = "Unknown" end
