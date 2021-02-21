@@ -218,9 +218,39 @@ end
 derma.DefineControl("FProfileMagicBar", "", MAGICBAR, "DPanel")
 
 --[[-------------------------------------------------------------------------
+A custom sort by column function to deal with sorting by numeric value
+--------------------------------------------------------------------------]]
+local function SortByColumn(self, ColumnID, Desc)
+    table.Copy(self.Sorted, self.Lines)
+
+    table.sort(self.Sorted, function(a, b)
+        if Desc then
+            a, b = b, a
+        end
+
+        local aval = a:GetSortValue(ColumnID) or a:GetColumnText(ColumnID)
+        local bval = b:GetSortValue(ColumnID) or b:GetColumnText(ColumnID)
+
+        local anum = tonumber(aval)
+        local bnum = tonumber(bval)
+
+        if anum and bnum then
+            return anum < bnum
+        end
+
+        return tostring(aval) < tostring(bval)
+    end)
+
+    self:SetDirty(true)
+    self:InvalidateLayout()
+end
+
+--[[-------------------------------------------------------------------------
 The Bottlenecks tab's contents
 ---------------------------------------------------------------------------]]
 local BOTTLENECKTAB = {}
+
+BOTTLENECKTAB.SortByColumn = SortByColumn
 
 function BOTTLENECKTAB:Init()
     self:SetMultiSelect(false)
@@ -275,6 +305,8 @@ derma.DefineControl("FProfileBottleNecks", "", BOTTLENECKTAB, "DListView")
 The Top n lag spikes tab's contents
 ---------------------------------------------------------------------------]]
 local TOPTENTAB = {}
+
+TOPTENTAB.SortByColumn = SortByColumn
 
 function TOPTENTAB:Init()
     self:SetMultiSelect(false)
