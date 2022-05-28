@@ -1,4 +1,4 @@
-FProfiler = {}
+FProfiler = FProfiler or {}
 FProfiler.Internal = {}
 FProfiler.UI = {}
 
