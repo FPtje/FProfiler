@@ -1,38 +1,9 @@
 local timeMeasurementFunc = SysTime
 
--- Helper function, created by some ancient Lua dev
--- Retrieves the local variables and their values of a function
-local function getupvalues(f)
-    local t, i, k, v = {}, 1, debug.getupvalue(f, 1)
-    while k do
-        t[k] = v
-        i = i + 1
-        k,v = debug.getupvalue(f, i)
-    end
-    return t
-end
-
 -- Helper function
 -- Get all local variables
 local NIL = {}
 setmetatable(NIL, {__tostring = function() return "nil" end})
-local function getlocals(level)
-    local i = 1
-    local name, value
-    local vars = {}
-
-    while true do
-        name, value = debug.getlocal(level, i)
-
-        if not name then break end
-
-        value = value == nil and NIL or value
-        vars[name] = value
-        i = i + 1
-    end
-
-    return vars
-end
 
 --[[-------------------------------------------------------------------------
 Call counts:
@@ -186,8 +157,6 @@ local function registerReturn(funcInfo)
 
         -- Update the entry
         mostExpensiveSingleCalls[i].runtime = runtime
-        mostExpensiveSingleCalls[i].upvalues = getupvalues(func)
-        mostExpensiveSingleCalls[i].locals = getlocals(5)
         mostExpensiveSingleCalls[i].info = funcInfo
         mostExpensiveSingleCalls[i].func = func
 
@@ -221,8 +190,6 @@ local function registerReturn(funcInfo)
             func = func,
             runtime = runtime,
             info = funcInfo,
-            upvalues = getupvalues(func),
-            locals = getlocals(5)
         })
 
 
