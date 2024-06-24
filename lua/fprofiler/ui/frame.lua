@@ -36,8 +36,7 @@ function REALMPANEL:Init()
 end
 
 function REALMPANEL:PerformLayout()
-    self.realmLabel:SizeToContents()
-    local top = ( self:GetTall() - self.realmLabel:GetTall() - self.realmbox:GetTall()) * 0.5
+    local top = (self:GetTall() - self.realmLabel:GetTall() - self.realmbox:GetTall()) * 0.5
     self:DockPadding(0, top, 0, 0)
 end
 
@@ -93,16 +92,11 @@ function FOCUSPANEL:Init()
         self.funcIndicator.color = FProfiler.UI.getCurrentRealmValue("focusStr") == "" and Color(0, 0, 0, 0) or new and Color(80, 255, 80, 255) or Color(255, 80, 80, 255)
     end)
 
-    FProfiler.UI.onCurrentRealmUpdate("focusStr", function(new, old)
+    FProfiler.UI.onCurrentRealmUpdate("focusStr", function(new)
         if self.focusBox:GetText() == new then return end
 
         self.focusBox:SetText(tostring(new))
     end)
-end
-
-function FOCUSPANEL:PerformLayout()
-    self.focusBox:SetWide(200)
-    self.focusLabel:SizeToContents()
 end
 
 derma.DefineControl("FProfileFocusPanel", "", FOCUSPANEL, "Panel")
@@ -133,14 +127,13 @@ function TIMERPANEL:Init()
         local recordTime, sessionStart = FProfiler.UI.getCurrentRealmValue("recordTime"), FProfiler.UI.getCurrentRealmValue("sessionStart")
 
         local totalTime = recordTime + (sessionStart and (CurTime() - sessionStart) or 0)
+        local formattedTime = string.FormattedTime(totalTime, "%02i:%02i:%02i")
 
-        self:SetText(string.FormattedTime(totalTime, "%02i:%02i:%02i"))
+        if formattedTime == self.formattedTime then return end
+
+        self:SetText(formattedTime)
+        self.formattedTime = formattedTime
     end
-end
-
-function TIMERPANEL:PerformLayout()
-    self.timeLabel:SizeToContents()
-    self.counter:SizeToContents()
 end
 
 derma.DefineControl("FProfileTimerPanel", "", TIMERPANEL, "Panel")
@@ -294,7 +287,7 @@ function BOTTLENECKTAB:Init()
 end
 
 
-function BOTTLENECKTAB:OnRowSelected(id, line)
+function BOTTLENECKTAB:OnRowSelected(_, line)
     FProfiler.UI.updateCurrentRealm("currentSelected", line.data)
 end
 
@@ -340,7 +333,7 @@ function TOPTENTAB:Init()
     end)
 end
 
-function TOPTENTAB:OnRowSelected(id, line)
+function TOPTENTAB:OnRowSelected(_, line)
     FProfiler.UI.updateCurrentRealm("currentSelected", line.data)
 end
 
