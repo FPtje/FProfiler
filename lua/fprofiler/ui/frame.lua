@@ -419,7 +419,7 @@ local FRAME = {}
 local frameInstance
 function FRAME:Init()
     self:SetTitle("FProfiler profiling tool")
-    self:SetSize(1920 * 0.9, 1080 * 0.9)
+    self:SetSize(ScrW() * 0.9, ScrH() * 0.9)
     self:Center()
     self:SetVisible(true)
     self:MakePopup()
