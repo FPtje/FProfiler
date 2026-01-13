@@ -245,6 +245,26 @@ local BOTTLENECKTAB = {}
 
 BOTTLENECKTAB.SortByColumn = SortByColumn
 
+function BOTTLENECKTAB:AutoSizeColumns()
+    for i = 1, #self.Columns do
+        local maxWidth = 50
+        local column = self.Columns[i]
+
+        surface.SetFont("DermaDefaultBold")
+        local headerWidth = surface.GetTextSize(column:GetName()) + 50
+        maxWidth = math.max(maxWidth, headerWidth)
+
+        surface.SetFont("DermaDefault")
+        for _, line in pairs(self.Lines) do
+            local text = line:GetColumnText(i)
+            local textWidth = surface.GetTextSize(tostring(text)) + 50
+            maxWidth = math.max(maxWidth, textWidth)
+        end
+
+        column:SetFixedWidth(maxWidth)
+    end
+end
+
 function BOTTLENECKTAB:Init()
     self:SetMultiSelect(false)
     self:AddColumn("Name")
@@ -275,6 +295,8 @@ function BOTTLENECKTAB:Init()
             local line = self:AddLine(table.concat(names, "/"), path, lines, amountCalled, totalTime, avgTime)
             line.data = row
         end
+
+        self:AutoSizeColumns()
     end)
 
     FProfiler.UI.onCurrentRealmUpdate("currentSelected", function(new, old)
@@ -301,6 +323,26 @@ local TOPTENTAB = {}
 
 TOPTENTAB.SortByColumn = SortByColumn
 
+function TOPTENTAB:AutoSizeColumns()
+    for i = 1, #self.Columns do
+        local maxWidth = 50
+        local column = self.Columns[i]
+
+        surface.SetFont("DermaDefaultBold")
+        local headerWidth = surface.GetTextSize(column:GetName()) + 50
+        maxWidth = math.max(maxWidth, headerWidth)
+
+        surface.SetFont("DermaDefault")
+        for _, line in pairs(self.Lines) do
+            local text = line:GetColumnText(i)
+            local textWidth = surface.GetTextSize(tostring(text)) + 50
+            maxWidth = math.max(maxWidth, textWidth)
+        end
+
+        column:SetFixedWidth(maxWidth)
+    end
+end
+
 function TOPTENTAB:Init()
     self:SetMultiSelect(false)
     self:AddColumn("Name")
@@ -322,6 +364,8 @@ function TOPTENTAB:Init()
             local line = self:AddLine(name, path, lines, runtime)
             line.data = row
         end
+
+        self:AutoSizeColumns()
     end)
 
     FProfiler.UI.onCurrentRealmUpdate("currentSelected", function(new, old)
