@@ -247,11 +247,11 @@ BOTTLENECKTAB.SortByColumn = SortByColumn
 
 function BOTTLENECKTAB:Init()
     self:SetMultiSelect(false)
-    self:AddColumn("Name")
-    self:AddColumn("Path")
+    self:AddColumn("Name"):SetWidth(200)
+    self:AddColumn("Path"):SetWidth(300)
     self:AddColumn("Lines")
-    self:AddColumn("Amount of times called")
-    self:AddColumn("Total time in ms (inclusive)")
+    self:AddColumn("Amount of times called"):SetWidth(10)
+    self:AddColumn("Total time in ms (inclusive)"):SetWidth(10)
     self:AddColumn("Average time in ms (inclusive)")
 
     FProfiler.UI.onCurrentRealmUpdate("bottlenecks", function(new)
@@ -303,8 +303,8 @@ TOPTENTAB.SortByColumn = SortByColumn
 
 function TOPTENTAB:Init()
     self:SetMultiSelect(false)
-    self:AddColumn("Name")
-    self:AddColumn("Path")
+    self:AddColumn("Name"):SetWidth(200)
+    self:AddColumn("Path"):SetWidth(300)
     self:AddColumn("Lines")
     self:AddColumn("Runtime in ms")
 
@@ -419,7 +419,7 @@ local FRAME = {}
 local frameInstance
 function FRAME:Init()
     self:SetTitle("FProfiler profiling tool")
-    self:SetSize(ScrW() * 0.8, ScrH() * 0.8)
+    self:SetSize(ScrW() * 0.9, ScrH() * 0.9)
     self:Center()
     self:SetVisible(true)
     self:MakePopup()
