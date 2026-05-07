@@ -38,5 +38,7 @@ function FProfiler.readSource(fname, startLine, endLine)
         table.insert(res, f:ReadLine() or "")
     end
 
+    f:Close()
+
     return table.concat(res, "\n")
 end
